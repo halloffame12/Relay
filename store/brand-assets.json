@@ -1,0 +1,33 @@
+{
+  "generated_by": "tool/generate_brand_assets.py",
+  "palette": {
+    "forest_ink": "#242820",
+    "warm_paper": "#F4F0E6",
+    "terracotta": "#D96C4F",
+    "sage": "#D8E0CF",
+    "olive_gray": "#79796F"
+  },
+  "play_store": {
+    "icon": "store/icon-512.png",
+    "feature_graphic": "store/feature-graphic-1024x500.png"
+  },
+  "android": {
+    "legacy_icons": "android/app/src/main/res/mipmap-*",
+    "adaptive_icons": "android/app/src/main/res/mipmap-anydpi-v26 and -v33",
+    "splash": "android/app/src/main/res/drawable-* and drawable-night-*"
+  },
+  "sizes": {
+    "icon": [
+      1024,
+      1024
+    ],
+    "play_icon": [
+      512,
+      512
+    ],
+    "feature_graphic": [
+      1024,
+      500
+    ]
+  }
+}

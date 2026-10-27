@@ -6,6 +6,12 @@ privacy policy.
 
 ## Facts about this build
 
+Final release candidate: `io.github.halloffame12.relay` version `0.9.0`
+(`versionCode 1`), min SDK 24, target SDK 36. Manifest permissions are
+`INTERNET`, optional `CAMERA`, and the transitive normal `ACCESS_NETWORK_STATE`;
+there is no broad storage, location, contacts, microphone, SMS, call-log or
+photos permission. Camera hardware is declared optional.
+
 - Relay itself has no accounts, ads, subscriptions, cloud library, developer
   analytics or developer-operated server.
 - Documents, reading positions, settings and transfer history are stored locally.
@@ -91,9 +97,9 @@ frames are processed on-device and are not saved or transmitted.
 - **Do you provide a way for users to request deletion of their data?** There is
   no account or developer-held user data. Users delete local documents and
   transfer history in the app, clear app storage, or uninstall. ML Kit data is
-  held by Google and is outside Relay's control. Answer consistently with the
-  final Play form and privacy policy; if Play requires a formal request channel,
-  use the Play listing contact email.
+  held by Google and is outside Relay's control. The published policy effective
+  27 October 2026 offers public GitHub Issues or the Play listing email as the
+  contact channel. Answer consistently with the final Play form and policy.
 - **Committed to the Play Families policy?** No, unless the target audience is
   changed to include children. Relay is a general-purpose document reader.
 - **Independent security review?** No claim is made.
@@ -106,7 +112,8 @@ frames are processed on-device and are not saved or transmitted.
    diagnostics. The conservative answer is **Shared: Yes**.
 3. Confirm the final peer-to-peer Files and docs treatment with the Play Console
    account owner or legal adviser.
-4. Make sure the published privacy policy and the in-app policy use the same wording
-   as the Data safety answers.
+4. Make sure the published Markdown/HTML privacy policy and the in-app policy
+   (effective 27 October 2026) use the same wording as the Data safety answers,
+   including the GitHub Issues + Play email contact channel.
 5. Do not submit a declaration that says "no data collected" while ML Kit is
    present.

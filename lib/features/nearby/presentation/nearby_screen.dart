@@ -54,6 +54,12 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(shareIntentResetProvider, (previous, next) {
+      if (previous == null || previous == next) return;
+      _hostController.clear();
+      _portController.clear();
+      _codeController.clear();
+    });
     final colors = context.relayColors;
     final useCompactWordmark = MediaQuery.sizeOf(context).width < 380;
     final documents = ref.watch(documentsProvider).value ?? const <Document>[];

@@ -1,8 +1,9 @@
 # Google Play listing draft
 
-Status: **copy and declarations are ready for review; the assets and account
-details marked HUMAN ACTION are still required.** Do not submit or publish
-without the owner's explicit authorization.
+Status: **listing copy, branding and screenshots are available for owner
+review; declarations and account details marked HUMAN ACTION are still
+required.** Do not submit or publish without the owner's explicit
+authorization.
 
 ## Store listing copy
 
@@ -81,8 +82,8 @@ required.
 | Target audience | General document readers; not designed or marketed for children. Confirm the final age band in Console. |
 | Content rating | Complete the questionnaire. There is no violence, sexual content, gambling, controlled substances, user-generated content or advertising. Do not guess the final rating. |
 | Data safety | Use `docs/data-safety.md`; it must be reviewed against the final build. |
-| Privacy policy | Published at `https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md`; enter that URL in Play Console. A dedicated domain is optional. |
-| Developer contact email | HUMAN ACTION: use a monitored email. It is not present in the repository. |
+| Privacy policy | Effective 27 October 2026. Published at `https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md`; enter that URL in Play Console. Contact channel: public GitHub Issues plus the Play listing email. A dedicated domain is optional. |
+| Developer contact email | HUMAN ACTION: use a monitored email. It is not present in the repository. The policy points to it as one contact option. |
 | Developer name/address | HUMAN ACTION: use the real Play Console developer identity. Do not invent one. |
 
 The public policy page is the GitHub-rendered Markdown file. The repository also
@@ -117,16 +118,23 @@ reviewer instructions.
 
 | Asset | Status |
 | --- | --- |
-| App icon 512 x 512 PNG | Available at `web/icons/Icon-512.png`; verified 512 x 512, 24 bpp, no alpha. Recheck the final icon choice before upload. |
-| Feature graphic 1024 x 500 | HUMAN ACTION: missing. |
-| Phone screenshots, 2-8 | HUMAN ACTION: capture from a clean install. Suggested screens: Library, Reader, Nearby receive/QR, connected send confirmation, transfer success, Privacy policy. |
-| 7-inch and 10-inch tablet screenshots | Optional but recommended if tablet layout is supported. |
+| Play icon 512 x 512 PNG | Available at `store/icon-512.png`; 512 x 512, RGB, no alpha. |
+| Feature graphic 1024 x 500 | Available at `store/feature-graphic-1024x500.png`; 1024 x 500, RGB, no alpha. |
+| Phone screenshots, 2-8 | Available in `store/screenshots/`; 1080 x 1920 RGB. Recommended: `02-library-imported.png`, `04-reader.png`, `03-document-details.png`, `05-nearby.png`, `04-import-success.png`, `07-settings.png`, `08-privacy.png`. Optional onboarding: `01b-library-empty-scrolled.png`. |
+| Tablet screenshots | Available in `store/screenshots/`; 1340 x 800 RGB, landscape tablet rail layout: `tablet-library.png`, `tablet-details.png`, `tablet-reader.png`, `tablet-transfers.png`. |
+| Brand source and generator | `store/brand-assets.json` and `tool/generate_brand_assets.py` (Pillow). Android adaptive, monochrome, round and legacy icons are packaged; launcher appearance was visually checked in App info on Android 17 and Android 11. Themed-icon appearance was not separately exercised. |
 | Promo video | Optional; do not use one that implies discovery, Bluetooth or encryption. |
-| Store listing title/short/full description | Draft above. |
+| Store listing title/short/full description | Draft above; owner approval still required. |
 
-Screenshot rules: use the real app, do not show a real invitation token or a real
-document the owner does not want public, and do not add device-frame text that
-claims features Relay does not have.
+Screenshot rules: use the original store sample
+`store/sample/the-quiet-orchard.epub`; do not use test fixtures. The phone and
+tablet captures are RGB with no alpha, within Play's 320-3,840 px size range and
+16:9-to-9:16 aspect-ratio range. Document-bearing captures use the final sample
+content. The live QR receive capture and the text-heavy policy dialog remain
+local-only, gitignored verification captures under
+`store/screenshots/internal/` and must not be uploaded. Do not show a real
+invitation token or a document the owner does not want public, and do not add
+device-frame text that claims features Relay does not have.
 
 ## Release tracks
 

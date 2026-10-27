@@ -1,10 +1,10 @@
 /// In-app privacy policy. This is the same substantive policy as
 /// docs/privacy-policy.md, kept in the app so users can read it without a
 /// network connection or a hosted page.
-const String relayPrivacyPolicyEffectiveDate = '26 October 2026';
+const String relayPrivacyPolicyEffectiveDate = '27 October 2026';
 
 const String relayPrivacyPolicyText = '''
-Effective 26 October 2026
+Effective 27 October 2026
 
 Relay is an offline-first Android document library and PDF/EPUB reader. This policy explains what Relay does with information when you use the app. Relay has no account system, advertising, subscription, cloud library or developer-operated analytics. The developer does not receive your documents.
 
@@ -57,7 +57,7 @@ Relay is a general-purpose document reader. It is not designed or marketed as a 
 If this policy changes, the effective date above will be updated. The current version is available in Relay's Settings and, when Relay is distributed through Google Play, through the privacy-policy link on its store listing.
 
 9. Contact
-For privacy questions, use the developer contact email shown on Relay's Google Play store listing. Do not send documents or invitation codes in a support message.
+For privacy questions, open an issue at https://github.com/halloffame12/Relay/issues or use the developer contact email shown on Relay's Google Play store listing. Do not include documents, invitation codes or other sensitive information in a public issue.
 
 10. Third-party components
 Relay uses open-source Flutter and Dart packages, AndroidX/CameraX, Google ML Kit barcode scanning, Pdfium through pdfx, and EPUB parsing through epubx. The in-app open-source licenses page lists the Dart packages. Native Android components remain subject to their own licenses and notices. ML Kit is subject to Google's applicable terms; it is not an open-source component of Relay.

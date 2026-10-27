@@ -7,6 +7,21 @@ final shareIntentProvider = NotifierProvider<ShareIntentController, String?>(
   ShareIntentController.new,
 );
 
+/// Incremented when the library starts a new share. The manual connection
+/// fields contain a single-use pairing code, so they must not be reused for a
+/// later share.
+final shareIntentResetProvider =
+    NotifierProvider<ShareIntentResetController, int>(
+      ShareIntentResetController.new,
+    );
+
+class ShareIntentResetController extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void reset() => state++;
+}
+
 class ShareIntentController extends Notifier<String?> {
   @override
   String? build() => null;

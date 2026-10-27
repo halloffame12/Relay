@@ -184,21 +184,45 @@ flutter build appbundle --release --no-pub `
 
 Never upload the QA variant. Do not commit the keystore, `key.properties`, or
 their passwords. See [`docs/release-readiness.md`](docs/release-readiness.md),
+[`docs/play-policy-audit.md`](docs/play-policy-audit.md),
 [`docs/privacy-policy.md`](docs/privacy-policy.md),
 [`docs/data-safety.md`](docs/data-safety.md), and
 [`docs/play-listing.md`](docs/play-listing.md).
 
+## Branding and store assets
+
+Relay uses a forest-ink, warm-paper, terracotta and sage palette. The mark is a
+pair of paper pages with a relay arrow. The reproducible generator is
+`tool/generate_brand_assets.py`; its palette and paths are recorded in
+`store/brand-assets.json`.
+
+- Play icon: `store/icon-512.png` (512 x 512, RGB, no alpha).
+- Feature graphic: `store/feature-graphic-1024x500.png` (1024 x 500, RGB).
+- Phone screenshots: `store/screenshots/` at 1080 x 1920, RGB.
+- Tablet screenshots: `store/screenshots/` at 1340 x 800, RGB.
+- Original screenshot sample: `store/sample/the-quiet-orchard.epub`.
+- Android adaptive, monochrome, round and legacy icons; Android 12+ day/night
+  splash styles; legacy launch background; iOS/macOS/Windows/web icons.
+
+The launcher icon was visually checked in App info on Android 17 and Android 11.
+Live QR and policy-dialog verification captures are local-only and gitignored
+under `store/screenshots/internal/`; do not upload them. See
+[`docs/play-listing.md`](docs/play-listing.md) for the recommended upload set.
+
 ## Public repository and privacy policy
 
 - Source: <https://github.com/halloffame12/Relay>
-- Privacy policy:
+- Privacy policy (effective 27 October 2026):
   <https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md>
+- Policy contact: public GitHub Issues at
+  <https://github.com/halloffame12/Relay/issues> or the developer email on the
+  Play listing. Do not post documents or invitation codes in a public issue.
 
 The repository intentionally excludes `android/key.properties`, keystores,
-`local.properties`, and build output. The static HTML in `docs/` is prepared for
-a future dedicated GitHub Pages deployment. The account-level Pages custom
-domain currently intercepts the project path, so that deployment is disabled
-and is not the public policy URL.
+`local.properties`, build output and local-only verification captures. The static
+HTML in `docs/` is prepared for a future dedicated GitHub Pages deployment. The
+account-level Pages custom domain currently intercepts the project path, so that
+deployment is disabled and is not the public policy URL.
 
 ## Verification status
 
@@ -212,43 +236,68 @@ and size mismatches, interrupted streams, connection failure, timeout,
 cancellation, startup cleanup, screen layouts, and existing reader
 regressions.
 
-The Phase 4 debug APK builds successfully with
-`flutter build apk --debug --no-pub`; the same build passes
-`dart format lib test`, `flutter analyze --no-pub`, and
-`flutter test --no-pub` (120 tests). The built artifact is
-`build/app/outputs/flutter-apk/app-debug.apk`. Automatic NSD/mDNS discovery was
-evaluated but deliberately deferred; the QR and manual paths do not depend on
-it.
+The final release candidate passes `dart format lib test`,
+`flutter analyze --no-pub`, and `flutter test --no-pub` (120 tests). The
+production upload-signed AAB and a local release APK build successfully with no
+QA override or debug-signing flag. Automatic NSD/mDNS discovery was evaluated
+but deliberately deferred; the QR and manual paths do not depend on it.
 
 ### Release bundle verification (27 October 2026)
 
-The production upload-signed AAB was built with no QA override or debug-signing
-flag:
+The production upload-signed AAB and local test APK were rebuilt with no QA
+override or debug-signing flag:
 
-- `build/app/outputs/bundle/release/app-release.aab`
-- 62,183,331 bytes (59.30 MiB)
-- SHA-256
-  `3A36EE9BD3A8F3D6BEB027F56C2F025C1F32171F9158B2D6919A8EA3293DCE3F`
+- AAB: `build/app/outputs/bundle/release/app-release.aab`, 62,970,943 bytes
+  (60.05 MiB), SHA-256
+  `99D21AD66DF2207BD28CA07C68B741950F14DA32E4C9581BE264440E164FF774`
+- Local test APK: `build/app/outputs/flutter-apk/app-release.apk`, 84,343,683
+  bytes (80.44 MiB), SHA-256
+  `802E8C473B0B3FE02020E276314736E21CF0492D643B2C376655C37664CA6A8B`
 - `io.github.halloffame12.relay`, version `0.9.0` (`versionCode 1`), min SDK 24,
   target SDK 36, ABIs `arm64-v8a`, `armeabi-v7a`, `x86_64`
 - `relay-upload` upload certificate, SHA-256
   `BB:0A:17:52:1A:CA:41:B7:DD:EC:6E:85:8B:2C:C8:31:16:51:8F:C7:98:72:E1:B1:88:36:FC:EA:B8:74:5C:95`
 
-`bundletool validate` exits 0, `jarsigner -verify` exits 0 and reports
-`jar verified.`, and the bundle is not signed with the Android Debug
-certificate. It contains no `key.properties`, keystore, `local.properties`,
-debug keystore, or password/property strings. The previous `.qa` QA artifact at
-the same path was inspected and replaced.
+`bundletool validate` exits 0, `jarsigner -verify -certs` exits 0, and the APK
+verifies with APK Signature Scheme v2 using the same upload certificate. The
+bundle contains no `key.properties`, keystore, `local.properties`, debug
+keystore, or password/property strings. The previous `.qa` QA artifact at the
+same path was inspected and replaced.
 
-This verifies the local bundle only. It was not installed on physical devices,
-uploaded to Play, or published. See
-[`docs/release-readiness.md`](docs/release-readiness.md) for the remaining human
-blockers and the physical-verification gaps.
+### Final release-build verification (27 October 2026)
 
-### Phase 4 physical result
+The final APK was installed on an Android 17 / API 37 emulator and one physical
+RMP2105 tablet (Android 11 / API 30, 1340 x 800 landscape). The emulator test
+covered launch, the in-app policy, camera denial with manual fallback, share
+accessibility and stale-field clearing. The tablet test covered the branded
+app-info icon, receive mode, manual connection details and reader content.
 
-Verified on two physical devices on the same router: an A009P sender (Android
-16, SDK 36) and an RMP2105 receiver (Android 11, SDK 30).
+A live direct-TCP send from the emulator sender to the tablet receiver used
+manual address/port/code entry and the original store sample `The Quiet
+Orchard` (2.4 KB). The tablet already held that sample from the earlier
+release-signed import. It showed the blocking approval dialog before bytes were
+accepted, verified the declared size and SHA-256, and recognized the document as
+already in the library without overwriting it. The earlier release-signed build
+completed the successful import; the final APK reopened the preserved document
+in the reader. This is a final-build approval/checksum/duplicate check, but it is
+an emulator-to-one-physical-device test, not a two-physical-device release test.
+
+Store captures are 1080 x 1920 phone and 1340 x 800 tablet RGB images;
+document-bearing screens use the original store sample. Live QR and policy-dialog
+captures are local-only and gitignored under `store/screenshots/internal/` and
+are not upload assets.
+
+This verifies the local artifact and the emulator-to-tablet path only. It was not
+uploaded to Play, installed from Play, or published. See
+[`docs/release-readiness.md`](docs/release-readiness.md) and
+[`docs/play-policy-audit.md`](docs/play-policy-audit.md) for the remaining human
+blockers and verification gaps.
+
+### Earlier two-device physical result (pre-branding build)
+
+This section records an earlier build on two physical devices on the same
+router: an A009P sender (Android 16, SDK 36) and an RMP2105 receiver (Android 11,
+SDK 30). It is protocol history, not a test of the final upload-signed artifact.
 
 - **QR-initiated connection.** The sender scanned a valid Relay invitation,
   reached a verified connection, chose the 2,214-byte EPUB, and the receiver

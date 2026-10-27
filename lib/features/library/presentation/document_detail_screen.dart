@@ -187,6 +187,7 @@ class DocumentDetailScreen extends ConsumerWidget {
                             ref
                                 .read(shareIntentProvider.notifier)
                                 .setDocument(document.id);
+                            ref.read(shareIntentResetProvider.notifier).reset();
                             context.go('/nearby');
                           },
                         ),
@@ -497,16 +498,23 @@ class _ActionRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Tooltip(
-          message: 'Share locally',
-          child: OutlinedButton(
-            onPressed: onShare,
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(48, AppSizes.controlHeight),
-              padding: EdgeInsets.zero,
-              side: BorderSide(color: colors.line),
+        Semantics(
+          button: true,
+          label: 'Share locally',
+          onTap: onShare,
+          excludeSemantics: true,
+          child: Tooltip(
+            message: 'Share locally',
+            excludeFromSemantics: true,
+            child: OutlinedButton(
+              onPressed: onShare,
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(48, AppSizes.controlHeight),
+                padding: EdgeInsets.zero,
+                side: BorderSide(color: colors.line),
+              ),
+              child: Icon(Icons.near_me_outlined, size: 19, color: colors.ink),
             ),
-            child: Icon(Icons.near_me_outlined, size: 19, color: colors.ink),
           ),
         ),
       ],

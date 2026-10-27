@@ -50,3 +50,6 @@ app.*.map.json
 /android/*.keystore
 **/*.jks
 **/*.keystore
+
+# Local verification captures may contain live invitation tokens or system UI.
+/store/screenshots/internal/

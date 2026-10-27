@@ -5,14 +5,14 @@ The repository also contains docs/index.html and docs/privacy-policy.html for a
 future GitHub Pages deployment. GitHub Pages is intentionally disabled because
 the account-level custom domain intercepts the project path and serves a
 different site. Do not claim a Pages URL until it is verified. Enter the working
-URL in Google Play Console. The contact method is the developer email already
-required on the Play listing; no contact detail is invented here. Keep the
-in-app policy in lib/features/settings/presentation/privacy_policy.dart in sync.
+URL in Google Play Console. The contact method is the public GitHub Issues page
+plus the developer email required on the Play listing. Keep the in-app policy in
+lib/features/settings/presentation/privacy_policy.dart in sync.
 -->
 
 # Relay privacy policy
 
-**Effective 26 October 2026**
+**Effective 27 October 2026**
 
 Relay is an offline-first Android document library and PDF/EPUB reader. This
 policy explains what Relay does with information when you use the app. Relay has
@@ -127,9 +127,10 @@ Google Play, through the privacy-policy link on its store listing.
 
 ## 9. Contact
 
-For privacy questions, use the developer contact email shown on Relay's Google
-Play store listing. Do not send documents or invitation codes in a support
-message.
+For privacy questions, open an issue at
+<https://github.com/halloffame12/Relay/issues> or use the developer contact
+email shown on Relay's Google Play store listing. Do not include documents,
+invitation codes or other sensitive information in a public issue.
 
 ## 10. Third-party components
 
