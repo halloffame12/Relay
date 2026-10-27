@@ -81,9 +81,14 @@ required.
 | Target audience | General document readers; not designed or marketed for children. Confirm the final age band in Console. |
 | Content rating | Complete the questionnaire. There is no violence, sexual content, gambling, controlled substances, user-generated content or advertising. Do not guess the final rating. |
 | Data safety | Use `docs/data-safety.md`; it must be reviewed against the final build. |
-| Privacy policy | HUMAN ACTION: host `docs/privacy-policy.md` at a public HTTPS URL and enter that URL. |
+| Privacy policy | Published at `https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md`; enter that URL in Play Console. A dedicated domain is optional. |
 | Developer contact email | HUMAN ACTION: use a monitored email. It is not present in the repository. |
 | Developer name/address | HUMAN ACTION: use the real Play Console developer identity. Do not invent one. |
+
+The public policy page is the GitHub-rendered Markdown file. The repository also
+contains static HTML for GitHub Pages, but the account-level custom domain
+currently intercepts the project path, so the Pages deployment was disabled. Do
+not enter a Pages URL in Play Console until it is verified.
 
 ## Reviewer instructions
 

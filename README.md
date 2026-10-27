@@ -152,7 +152,7 @@ all app data from Android 12+ cloud backup and device transfer through
 `mobile_scanner`; its transitive Android library merges the normal
 `ACCESS_NETWORK_STATE` permission. ML Kit may send limited diagnostics and usage
 data to Google even though Relay's own transfer code never sends document bytes
-or invitation credentials to a cloud service. The in-app and hosted privacy
+or invitation credentials to a cloud service. The in-app and published privacy
 policies disclose that SDK telemetry and the fact that nearby transfers are not
 end-to-end encrypted. This build targets Android SDK 36, where `INTERNET` also
 grants local-network access. An Android 17 / target SDK 37 build would need to
@@ -187,6 +187,18 @@ their passwords. See [`docs/release-readiness.md`](docs/release-readiness.md),
 [`docs/privacy-policy.md`](docs/privacy-policy.md),
 [`docs/data-safety.md`](docs/data-safety.md), and
 [`docs/play-listing.md`](docs/play-listing.md).
+
+## Public repository and privacy policy
+
+- Source: <https://github.com/halloffame12/Relay>
+- Privacy policy:
+  <https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md>
+
+The repository intentionally excludes `android/key.properties`, keystores,
+`local.properties`, and build output. The static HTML in `docs/` is prepared for
+a future dedicated GitHub Pages deployment. The account-level Pages custom
+domain currently intercepts the project path, so that deployment is disabled
+and is not the public policy URL.
 
 ## Verification status
 

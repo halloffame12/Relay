@@ -12,8 +12,10 @@ No Play Console submission or production publish was performed.
 
 ## Scope and constraints
 
-- Repository: `C:\startup\Relay`. There is no Git repository, so this audit could
-  not rely on a commit diff or `git status`.
+- Repository: `C:\startup\Relay`. The audit began before Git was initialized.
+  Git and the public `origin` remote were added afterward; build output and
+  signing files remain ignored. The public repository is
+  <https://github.com/halloffame12/Relay>.
 - The product remains local-first. No analytics SDK, ads, accounts, cloud
   storage, discovery service or developer-operated server was added.
 - Direct TCP, NDJSON, protocol v2, QR invitation v1, receiver approval, checksum
@@ -40,7 +42,7 @@ No Play Console submission or production publish was performed.
 | Permissions | Pass | `INTERNET`, `CAMERA`, and transitive `ACCESS_NETWORK_STATE` only; camera hardware optional; no broad storage. |
 | Exported components | Pass | Launcher activity plus a `ProfileInstallReceiver` protected by `android.permission.DUMP`; other components are not exported. |
 | Backup controls | Pass | `allowBackup=false`, `fullBackupContent=false`, and all app data excluded from Android 12+ cloud backup and device transfer. |
-| Privacy policy | Draft complete | In-app and Markdown policy written; a public HTTPS URL still needs to be supplied. |
+| Privacy policy | Published | In-app and Markdown policy written. Public HTTPS page: `https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md`. Enter it in Play Console. |
 | Data safety | Draft only | Conservative draft prepared; peer-to-peer and ML Kit answers need owner/legal confirmation. |
 | Play Console account/track | **Blocker / unknown** | Account type and creation date are unknown; the required testing path cannot be confirmed. |
 | Store listing assets | **Incomplete** | Icon available; feature graphic and screenshots are missing; content rating and target audience are not submitted. |
@@ -93,6 +95,17 @@ No Play Console submission or production publish was performed.
      it points at the owner-supplied keystore outside the repository. No
      password or private key was displayed.
    - Built and verified the production-upload-signed AAB described below.
+7. **Public source repository and policy page**
+   - Initialized Git on `main`, committed the source without build output or
+     signing secrets, and pushed it to
+     <https://github.com/halloffame12/Relay>.
+   - The AAB, `android/key.properties`, keystore files, `local.properties` and
+     build directories are ignored and are not in the public repository.
+   - Added `docs/index.html`, `docs/privacy-policy.html` and `docs/.nojekyll`
+     for a future GitHub Pages deployment. The account-level custom domain
+     currently intercepts the project path, so Pages was disabled rather than
+     exposing a wrong page. The GitHub-rendered Markdown page is the current
+     public URL.
 
 No transfer protocol, invitation format, storage algorithm, receiver-approval
 logic or checksum implementation was changed.
@@ -148,8 +161,9 @@ override" check, and the production AAB's SHA-256 was unchanged.
   bundle. The only `META-INF` entries are the public signature block
   (`RELAY-UP.SF`, `RELAY-UP.RSA`) and `MANIFEST.MF`.
 - **Local signing location:** `%USERPROFILE%\RelayKeys\relay-upload.jks`,
-  outside the repository. `android/key.properties` is ignored by `.gitignore`;
-  no Git repository exists, so nothing is tracked.
+  outside the repository. `android/key.properties` is ignored by `.gitignore`
+  and was not committed. The public repository contains no keystore,
+  `key.properties`, `local.properties` or build output.
 
 The certificate SHA-256 matches the `relay-upload` certificate read from the
 configured keystore. This AAB is signed with the upload key. If Play App Signing
@@ -260,8 +274,12 @@ production path now.
   upload key. Play App Signing enrollment and the Play-distributed certificate
   are still Play Console actions.
 - **Privacy policy:** Play requires a privacy-policy URL for apps that request
-  sensitive permissions or handle personal/sensitive data. The policy text is
-  ready; the **public HTTPS URL is missing**.
+  sensitive permissions or handle personal/sensitive data. The policy is
+  published at
+  <https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md>.
+  Enter that URL in Play Console. A dedicated domain is preferable; the
+  account-level GitHub Pages custom domain currently intercepts the project
+  path, so the Pages deployment was disabled rather than exposing a wrong page.
 - **Data safety:** A draft is ready; the final declaration must match the build
   and policy and must be signed off by the account owner/legal adviser.
 - **Testing path:** Personal developer accounts created after 13 November 2023
@@ -282,12 +300,13 @@ production path now.
 Application ID and release signing are no longer blockers. The AAB is signed
 with the owner's upload key and the certificate matches the configured keystore.
 
-1. **Provide a public HTTPS privacy-policy URL.** Host
-   `docs/privacy-policy.md` unchanged or with only owner-approved edits. A local
-   file or an unpublished draft is not acceptable.
+1. **Enter the published privacy-policy URL in Play Console.** The working
+   public HTTPS page is
+   <https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md>.
+   A dedicated domain can replace it later, but only after the URL is verified.
 2. **Provide the Play developer contact email and developer identity.** The
-   policy currently points to the Play listing email; no address, company name or
-   phone number was invented.
+   policy points to the Play listing email; no address, company name or phone
+   number was invented.
 3. **Complete Data safety and content rating.** Confirm the peer-to-peer Files
    and docs treatment and the ML Kit shared/collected answers. Do not submit a
    "no data collected" declaration while ML Kit is bundled.
@@ -318,8 +337,9 @@ with the owner's upload key and the certificate matches the configured keystore.
 
 The local production-upload-signed AAB is built and verified. Remaining steps:
 
-1. Host `docs/privacy-policy.md` at a public HTTPS URL and supply the monitored
-   Play developer contact.
+1. Enter the published policy URL
+   <https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md>
+   in Play Console and supply the monitored developer contact.
 2. Complete Data safety, content rating, target audience, ads/IAP and app-access
    declarations.
 3. Prepare the feature graphic, phone screenshots, optional tablet screenshots,

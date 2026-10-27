@@ -1,9 +1,13 @@
 <!--
-Publication note (not part of the policy): host this policy at a public,
-stable HTTPS URL and enter that URL in Google Play Console. The contact method
-is the developer email already required on the Play listing; no contact detail
-is invented here. Keep the in-app policy in
-lib/features/settings/presentation/privacy_policy.dart in sync.
+Publication note (not part of the policy): the current public HTTPS URL is
+https://github.com/halloffame12/Relay/blob/main/docs/privacy-policy.md
+The repository also contains docs/index.html and docs/privacy-policy.html for a
+future GitHub Pages deployment. GitHub Pages is intentionally disabled because
+the account-level custom domain intercepts the project path and serves a
+different site. Do not claim a Pages URL until it is verified. Enter the working
+URL in Google Play Console. The contact method is the developer email already
+required on the Play listing; no contact detail is invented here. Keep the
+in-app policy in lib/features/settings/presentation/privacy_policy.dart in sync.
 -->
 
 # Relay privacy policy

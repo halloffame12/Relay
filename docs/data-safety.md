@@ -106,7 +106,7 @@ frames are processed on-device and are not saved or transmitted.
    diagnostics. The conservative answer is **Shared: Yes**.
 3. Confirm the final peer-to-peer Files and docs treatment with the Play Console
    account owner or legal adviser.
-4. Make sure the hosted privacy policy and the in-app policy use the same wording
+4. Make sure the published privacy policy and the in-app policy use the same wording
    as the Data safety answers.
 5. Do not submit a declaration that says "no data collected" while ML Kit is
    present.
