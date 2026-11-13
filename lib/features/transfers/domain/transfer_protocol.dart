@@ -49,6 +49,7 @@ sealed class WireMessage {
         code: 'message_too_large',
       );
     }
+    _checkJsonNesting(line);
     final Object? decoded;
     try {
       decoded = jsonDecode(line);
@@ -469,4 +470,42 @@ String _sha256(Map<String, dynamic> json) {
     );
   }
   return value;
+}
+
+/// Rejects pathological nesting before [jsonDecode] recurses through it.
+///
+/// Control messages are at most a few levels deep, so a small fixed bound is
+/// enough. Quoted strings are skipped so brackets inside a reason or title do
+/// not count as structure.
+void _checkJsonNesting(String source) {
+  const maxDepth = 32;
+  var depth = 0;
+  var inString = false;
+  var escaped = false;
+  for (var i = 0; i < source.length; i++) {
+    final codeUnit = source.codeUnitAt(i);
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (codeUnit == 0x5C) {
+        escaped = true;
+      } else if (codeUnit == 0x22) {
+        inString = false;
+      }
+      continue;
+    }
+    if (codeUnit == 0x22) {
+      inString = true;
+    } else if (codeUnit == 0x7B || codeUnit == 0x5B) {
+      depth++;
+      if (depth > maxDepth) {
+        throw const TransferProtocolException(
+          'The control message is nested too deeply.',
+          code: 'invalid_json',
+        );
+      }
+    } else if (codeUnit == 0x7D || codeUnit == 0x5D) {
+      if (depth > 0) depth--;
+    }
+  }
 }

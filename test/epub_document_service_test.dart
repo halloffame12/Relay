@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:relay/features/reader/data/epubx_document_service.dart';
 import 'package:relay/features/reader/domain/epub_document.dart';
 
+import 'support/epub_fixture.dart';
+
 void main() {
   final service = EpubxDocumentService();
 
@@ -32,6 +34,45 @@ void main() {
     );
     expect(book.wordCount, greaterThan(10));
   });
+
+  test(
+    'renders bounded raster images and skips SVG and remote sources',
+    () async {
+      final temp = await Directory.systemTemp.createTemp('relay_epub_images_');
+      addTearDown(() => temp.delete(recursive: true));
+      final file = File('${temp.path}/images.epub');
+      await writeImageEpub(file);
+
+      final book = await service.open(file.path);
+
+      expect(book.title, 'Bidirectional Evil Title');
+      expect(book.author, 'Ada Lovelace');
+      expect(book.description, 'A book with an image.');
+      expect(book.language, 'en-US');
+      expect(book.chapters, hasLength(1));
+
+      final blocks = book.chapters.single.blocks;
+      final images = blocks.where((block) => block.kind == EpubBlockKind.image);
+      expect(images, hasLength(1));
+      final image = images.single;
+      expect(image.image?.mimeType, 'image/png');
+      expect(image.image?.bytes, isNotEmpty);
+      expect(image.text, 'A pixel');
+
+      final kinds = blocks.map((block) => block.kind).toList();
+      expect(kinds, [
+        EpubBlockKind.heading,
+        EpubBlockKind.paragraph,
+        EpubBlockKind.image,
+        EpubBlockKind.paragraph,
+      ]);
+      expect(
+        blocks.where((block) => block.text.contains('tracker')),
+        isEmpty,
+        reason: 'Remote image references must never be fetched.',
+      );
+    },
+  );
 
   test(
     'reports malformed EPUB containers without leaking parser errors',

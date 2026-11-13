@@ -120,6 +120,7 @@ class TransfersScreen extends ConsumerWidget {
                     )
                   else if (tasks.isEmpty)
                     RelayEmptyState(
+                      brand: true,
                       icon: Icons.swap_horiz_rounded,
                       title: 'No transfers yet',
                       message:

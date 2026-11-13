@@ -165,6 +165,11 @@ class RelayTransferService implements TransferService {
   final TransferLimits _limits;
   final Random _random = Random.secure();
 
+  /// A manual pairing code may be tried this many times before the receiver
+  /// rotates it. This keeps a six-digit code from being brute-forced over an
+  /// open receive session.
+  static const _maxFailedPairingAttempts = 5;
+
   final StreamController<ReceiverEndpoint> _receiverController =
       StreamController<ReceiverEndpoint>.broadcast();
   final StreamController<List<IncomingTransferRequest>>
@@ -185,6 +190,7 @@ class RelayTransferService implements TransferService {
   TransferInvitation? _invitation;
   Timer? _invitationTimer;
   Future<void>? _recoveryFuture;
+  var _failedPairingAttempts = 0;
   bool _disposed = false;
 
   @override
@@ -1014,12 +1020,26 @@ class RelayTransferService implements TransferService {
         if (_pairingCode == null ||
             pairingCode == null ||
             pairingCode != _pairingCode) {
-          throw const _TransferFailure(
-            'The sender used an incorrect or expired pairing code.',
-            code: 'pairing_code',
+          _failedPairingAttempts++;
+          final locked = _failedPairingAttempts >= _maxFailedPairingAttempts;
+          if (locked) {
+            _failedPairingAttempts = 0;
+            _rotateInvitation(
+              statusMessage:
+                  'Too many incorrect pairing codes. A new code is ready.',
+            );
+          }
+          throw _TransferFailure(
+            locked
+                ? 'Too many incorrect pairing attempts. Ask the receiving '
+                      'device to show its new code.'
+                : 'The sender used an incorrect or expired pairing code.',
+            code: locked ? 'pairing_locked' : 'pairing_code',
           );
         }
       }
+
+      _failedPairingAttempts = 0;
 
       invitationConsumed = true;
       _invitationTimer?.cancel();
@@ -1428,6 +1448,9 @@ class RelayTransferService implements TransferService {
   _TransferFailure _remoteFailure(ErrorMessage error) {
     final message = switch (error.code) {
       'pairing_code' => 'The receiving device rejected the pairing code.',
+      'pairing_locked' =>
+        'Too many incorrect pairing attempts. Ask the receiving device for '
+            'its new code.',
       'unsupported_version' =>
         'The receiving device does not support this Relay transfer version.',
       'file_too_large' =>
@@ -1506,6 +1529,7 @@ class RelayTransferService implements TransferService {
     _receiverSessionId = null;
     _pairingCode = null;
     _invitation = null;
+    _failedPairingAttempts = 0;
   }
 
   void _scheduleInvitationExpiry() {
@@ -1532,6 +1556,7 @@ class RelayTransferService implements TransferService {
 
   void _rotateInvitation({String? statusMessage}) {
     if (!_receiver.isListening || _receiver.port == null) return;
+    _failedPairingAttempts = 0;
     _receiverSessionId ??= _newCredential(16);
     _pairingCode = _newPairingCode();
     _invitation = _receiver.addresses.isEmpty
@@ -1590,6 +1615,9 @@ class RelayTransferService implements TransferService {
             'receiver to show a new one.',
       'pairing_code' =>
         'The receiving device rejected the pairing code or it has expired.',
+      'pairing_locked' =>
+        'Too many incorrect codes. Ask the receiving device for its new '
+            'pairing code.',
       'unsupported_version' =>
         'The receiving device does not support this Relay transfer version.',
       'busy' => 'The receiving device is already connected to another sender.',

@@ -1,0 +1,17 @@
+{
+  "name": "relay-signaling",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reference WebSocket signaling service for Relay share sessions.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

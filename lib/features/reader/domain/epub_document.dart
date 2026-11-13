@@ -1,13 +1,27 @@
 import 'package:flutter/foundation.dart';
 
-enum EpubBlockKind { paragraph, heading, quote, listItem, code }
+enum EpubBlockKind { paragraph, heading, quote, listItem, code, image }
+
+@immutable
+class EpubImage {
+  const EpubImage({
+    required this.bytes,
+    required this.mimeType,
+    this.altText = '',
+  });
+
+  final Uint8List bytes;
+  final String mimeType;
+  final String altText;
+}
 
 @immutable
 class EpubBlock {
-  const EpubBlock({required this.kind, required this.text});
+  const EpubBlock({required this.kind, required this.text, this.image});
 
   final EpubBlockKind kind;
   final String text;
+  final EpubImage? image;
 }
 
 @immutable
@@ -24,7 +38,11 @@ class EpubChapter {
 
   int get wordCount => blocks.fold(
     0,
-    (total, block) => total + block.text.split(RegExp(r'\s+')).length,
+    (total, block) =>
+        total +
+        (block.kind == EpubBlockKind.image || block.text.trim().isEmpty
+            ? 0
+            : block.text.split(RegExp(r'\s+')).length),
   );
 
   int get readingMinutes => (wordCount / 220).ceil().clamp(1, 999);

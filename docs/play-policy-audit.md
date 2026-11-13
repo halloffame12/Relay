@@ -61,7 +61,7 @@ was performed.
 | Accessibility polish | Fixed | The icon-only "Share locally" control now exposes a button label and accessibility tap action. The previous tooltip-only semantics did not expose a reliable clickable node. |
 | Single-use form polish | Fixed | Starting a new share now clears the previous manual address, port and pairing code instead of reusing a stale, expired code. |
 | Play Console testing path | Blocker / unknown | Account type and creation date are unknown; the 12-tester/14-day closed-testing path cannot be confirmed. |
-| Two-physical-device release test | Outstanding | The final release APK was installed on an Android 17 emulator and one physical Android 11 tablet. A manual-fallback approval/checksum/duplicate check succeeded emulator-to-tablet; the successful import occurred on the immediately preceding release-signed build, and the final APK reopened the preserved document in the reader. A two-physical-device release test was not possible with the available hardware. |
+| Two-physical-device release test | Pass for manual PDF | On 1 November 2026 the final upload-signed APK ran on two physical Android 16 devices. Manual pairing produced a 24.6 MB PDF import after the blocking approval, the receiver verified the checksum, a duplicate was recognized without overwrite, and an explicit rejection left no library entry. EPUB was not repeated on final two-device hardware. |
 | Direct camera-to-screen QR scan | Outstanding | The earlier two-device physical test scanned a QR image on a monitor, not the receiver's own screen. Do not claim that physical camera aiming has been proved. |
 | Play-installed build | Outstanding | No Play upload or internal-testing install was performed. The Play App Signing certificate remains unrecorded. |
 
@@ -78,7 +78,11 @@ was performed.
   or invitation codes.
 - Cleared stale manual connection fields when a new share starts.
 - Added an accessible button label/action to the share control.
-- Rebuilt and re-verified the upload-signed AAB and local test APK.
+- Hardened corrupt-settings recovery, mid-copy import cancellation, streaming
+  SHA-256, untrusted metadata, JSON nesting, EPUB image extraction and the manual
+  pairing-code attempt cap.
+- Rebuilt and re-verified the upload-signed AAB and local test APK after the
+  hardening pass.
 
 ## Remaining owner/legal/store actions
 
@@ -93,8 +97,8 @@ was performed.
 5. Confirm the Play Console account type and required testing path.
 6. Review and approve the app title, short/full description, icon, feature
    graphic, phone screenshots and tablet screenshot set.
-7. Test the final release on two physical devices on the same Wi-Fi, including
-   rejection, duplicate handling, expiry/rotation and cleanup.
+7. Repeat an EPUB transfer on two physical devices with the final build; the
+   1 November run covered PDF, duplicate handling and rejection.
 8. Perform a direct camera-to-phone-screen QR scan and recheck camera-denial
    recovery on the release build.
 9. After explicit authorization, upload to internal testing, verify the
@@ -104,10 +108,12 @@ was performed.
 ## Claims to avoid
 
 Do not claim that Relay is "production-ready", "policy-perfect", "Play approved",
-"two-physical-device release tested", "direct-camera QR tested", "Play-installed",
-or "Play App Signing verified" until the corresponding owner action above is
-complete. Do not claim transport encryption, automatic discovery, Bluetooth,
-Wi-Fi Direct, cloud sync or background transfer: none are implemented.
+"direct-camera QR tested", "Play-installed", or "Play App Signing verified" until
+the corresponding action above is complete. Do not claim that the final
+two-device run covered EPUB or camera pairing: it covered a manual PDF transfer,
+duplicate handling and rejection on two physical devices. Do not claim transport
+encryption, automatic discovery, Bluetooth, Wi-Fi Direct, cloud sync or
+background transfer: none are implemented.
 
 ## Related documents
 

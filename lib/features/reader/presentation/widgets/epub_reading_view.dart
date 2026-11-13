@@ -246,11 +246,30 @@ class _EpubBlockView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final image = block.image;
+    if (block.kind == EpubBlockKind.image && image != null) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: 24 * textScale),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(2),
+          child: Image.memory(
+            image.bytes,
+            width: double.infinity,
+            fit: BoxFit.fitWidth,
+            filterQuality: FilterQuality.medium,
+            semanticLabel: block.text.isEmpty ? null : block.text,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
+          ),
+        ),
+      );
+    }
     final spacing = switch (block.kind) {
       EpubBlockKind.heading => 28.0 * textScale,
       EpubBlockKind.quote => 20.0 * textScale,
       EpubBlockKind.code => 16.0 * textScale,
       EpubBlockKind.listItem => 8.0 * textScale,
+      EpubBlockKind.image => 24.0 * textScale,
       EpubBlockKind.paragraph => 20.0 * textScale,
     };
     final textStyle = switch (block.kind) {
@@ -276,6 +295,7 @@ class _EpubBlockView extends StatelessWidget {
         height: 1.65,
         color: palette.ink,
       ),
+      EpubBlockKind.image => const TextStyle(),
       EpubBlockKind.paragraph =>
         AppTypography.serif(
           size: bodySize,

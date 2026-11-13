@@ -10,7 +10,9 @@ Relay device on the same local Wi-Fi network.
 - Import PDF and EPUB files through the Android system picker. Relay copies the
   file into its own storage, computes SHA-256, and rejects duplicates.
 - Read PDF and EPUB documents, restore the last reading position, add bookmarks,
-  search and filter the library, and view storage usage.
+  search and filter the library, and view storage usage. EPUB reading renders
+  bounded inline raster images (PNG, JPEG, GIF); SVG and remote images are
+  skipped.
 - Remove Relay's managed copy without modifying the original file the user
   imported.
 - Offer receive mode on one device, show a single-use QR invitation, scan it
@@ -23,6 +25,11 @@ Relay device on the same local Wi-Fi network.
   local files.
 - Persist real transfer records and states in Drift. Interrupted transfers are
   marked failed on restart and never appear resumable or complete.
+- Harden untrusted boundaries: imported and EPUB metadata is stripped of control
+  and bidi characters and length-bounded, transfer JSON is nesting-limited
+  before decode, and corrupt settings fall back to safe defaults instead of
+  crashing. After five failed manual pairing attempts the receiver rotates the
+  invitation and six-digit code.
 
 ## How direct transfer works
 
@@ -77,8 +84,22 @@ cancel message.
 - Incoming filenames are generated locally. A remote filename is never used as
   a filesystem path.
 - File bytes are streamed with bounded buffers. Only the small manifest is kept
-  in memory.
-- The receive server handles one incoming connection at a time.
+  in memory. Transfer control frames reject JSON nested deeper than 32 levels
+  before decoding.
+- The receive server handles one incoming connection at a time. Five failed
+  manual pairing-code attempts invalidate the current invitation; the receiver
+  rotates to a new code instead of allowing unlimited guesses against a
+  short-lived six-digit secret.
+- Imported and EPUB-derived title, author, description and language text is
+  stripped of control, bidi and BOM characters, whitespace-collapsed, and
+  length-bounded before display or persistence.
+- EPUB images are restricted to chapter-relative PNG, JPEG or GIF files whose
+  magic bytes match, with per-image (8 MiB), per-book (24 MiB) and count (40)
+  budgets. SVG, remote URLs, and mismatched or oversized images are skipped
+  rather than fetched or rendered.
+- Corrupt or unreadable settings entries are treated as missing and rewritten;
+  out-of-range reader text scale is clamped to 0.85–1.45. A failed settings write
+  is surfaced but does not escape the controller.
 - QR invitations are strictly bounded and parsed as Relay data. Relay rejects
   hostnames, URL paths, user-info, ports in the authority, duplicate or unknown
   fields, non-IPv4 and link-local/multicast addresses, expired codes, and
@@ -234,60 +255,81 @@ state transitions, the version-1-to-version-2 Drift migration, loopback
 PDF/EPUB transfers, rejection, duplicate handling, large streaming, checksum
 and size mismatches, interrupted streams, connection failure, timeout,
 cancellation, startup cleanup, screen layouts, and existing reader
-regressions.
+regressions. Hardening coverage includes corrupt settings and failed settings
+writes, mid-copy import cancellation, hostile metadata, over-nested transfer
+JSON, bounded EPUB images (including SVG/remote/GIF-mismatch rejection), and
+pairing-code rotation after five failed manual attempts.
 
-The final release candidate passes `dart format lib test`,
-`flutter analyze --no-pub`, and `flutter test --no-pub` (120 tests). The
-production upload-signed AAB and a local release APK build successfully with no
-QA override or debug-signing flag. Automatic NSD/mDNS discovery was evaluated
-but deliberately deferred; the QR and manual paths do not depend on it.
+The final release candidate passes `dart format lib test` (117 files, 0
+changed), `flutter analyze --no-pub` (no issues), and
+`flutter test --no-pub` (129 tests). The production upload-signed AAB and a local
+release APK build successfully with no QA override or debug-signing flag.
+Automatic NSD/mDNS discovery was evaluated but deliberately deferred; the QR and
+manual paths do not depend on it.
 
-### Release bundle verification (27 October 2026)
+### Release bundle verification (1 November 2026)
 
-The production upload-signed AAB and local test APK were rebuilt with no QA
-override or debug-signing flag:
+The production upload-signed AAB and local test APK were rebuilt from the
+hardened working tree with no QA override or debug-signing flag:
 
-- AAB: `build/app/outputs/bundle/release/app-release.aab`, 62,970,943 bytes
-  (60.05 MiB), SHA-256
-  `99D21AD66DF2207BD28CA07C68B741950F14DA32E4C9581BE264440E164FF774`
-- Local test APK: `build/app/outputs/flutter-apk/app-release.apk`, 84,343,683
-  bytes (80.44 MiB), SHA-256
-  `802E8C473B0B3FE02020E276314736E21CF0492D643B2C376655C37664CA6A8B`
+- AAB: `build/app/outputs/bundle/release/app-release.aab`, 63,001,502 bytes
+  (60.08 MiB), SHA-256
+  `B2ADE2B061F50491EFFEA2C5962A4FA3417AF1027B93CD0FA0CDB9B72A3EAC96`
+- Local test APK: `build/app/outputs/flutter-apk/app-release.apk`, 84,360,067
+  bytes (80.45 MiB), SHA-256
+  `6621DD08129ADE857A2B33028700689465BEE0A1C7B0444F9A1B073E446F2BF2`
 - `io.github.halloffame12.relay`, version `0.9.0` (`versionCode 1`), min SDK 24,
   target SDK 36, ABIs `arm64-v8a`, `armeabi-v7a`, `x86_64`
 - `relay-upload` upload certificate, SHA-256
   `BB:0A:17:52:1A:CA:41:B7:DD:EC:6E:85:8B:2C:C8:31:16:51:8F:C7:98:72:E1:B1:88:36:FC:EA:B8:74:5C:95`
 
-`bundletool validate` exits 0, `jarsigner -verify -certs` exits 0, and the APK
-verifies with APK Signature Scheme v2 using the same upload certificate. The
-bundle contains no `key.properties`, keystore, `local.properties`, debug
-keystore, or password/property strings. The previous `.qa` QA artifact at the
-same path was inspected and replaced.
+`bundletool validate` exits 0, `jarsigner -verify -certs` exits 0 (with the
+expected JarInputStream entry warnings), and the APK verifies with APK Signature
+Scheme v2 using the same upload certificate. Manifest inspection still shows
+`INTERNET`, optional `CAMERA`, and transitive normal `ACCESS_NETWORK_STATE`, with
+no storage, location or other broad permissions. The bundle contains no
+`key.properties`, keystore, `local.properties`, debug keystore, or
+password/property strings.
 
-### Final release-build verification (27 October 2026)
+### Final two-physical-device release verification (1 November 2026)
 
-The final APK was installed on an Android 17 / API 37 emulator and one physical
-RMP2105 tablet (Android 11 / API 30, 1340 x 800 landscape). The emulator test
-covered launch, the in-app policy, camera denial with manual fallback, share
-accessibility and stale-field clearing. The tablet test covered the branded
-app-info icon, receive mode, manual connection details and reader content.
+The final upload-signed APK was installed on two physical devices on the same
+Wi-Fi network (`Airtel_kris_3077`):
 
-A live direct-TCP send from the emulator sender to the tablet receiver used
-manual address/port/code entry and the original store sample `The Quiet
-Orchard` (2.4 KB). The tablet already held that sample from the earlier
-release-signed import. It showed the blocking approval dialog before bytes were
-accepted, verified the declared size and SHA-256, and recognized the document as
-already in the library without overwriting it. The earlier release-signed build
-completed the successful import; the final APK reopened the preserved document
-in the reader. This is a final-build approval/checksum/duplicate check, but it is
-an emulator-to-one-physical-device test, not a two-physical-device release test.
+- sender: A009P, Android 16 / API 36, 1080 x 2344
+- receiver: V2575, Android 16 / API 36, 720 x 1600
 
-Store captures are 1080 x 1920 phone and 1340 x 800 tablet RGB images;
-document-bearing screens use the original store sample. Live QR and policy-dialog
-captures are local-only and gitignored under `store/screenshots/internal/` and
-are not upload assets.
+The sender initially had Wi-Fi disabled, so the first manual attempt failed with
+the expected unreachable-receiver message. After enabling Wi-Fi, the sender
+obtained `192.168.1.2/24` and the receiver was `192.168.1.6/24`. A fresh
+single-use code was then used.
 
-This verifies the local artifact and the emulator-to-tablet path only. It was not
+- **Successful transfer:** the sender streamed a 24.6 MB PDF (`machine
+  learning`) over direct TCP via manual address/port/code entry. The receiver
+  displayed the blocking approval dialog before accepting bytes. After approval
+  it imported the file; the library then reported 1 document and 24.6 MB stored,
+  and document details showed 14 pages and “Received from Relay device 1687 over
+  Wi-Fi”. The sender recorded a completed transfer to Relay device C5DB.
+- **Duplicate handling:** repeating the send made the receiver report
+  `Verified “machine learning”. It was already in your library.`; the sender
+  recorded “The receiving device already had this document.” No existing
+  document was overwritten.
+- **Explicit rejection:** another send was declined on the receiver. The receiver
+  reported `You declined “machine learning”.`; the sender recorded a cancelled
+  transfer with “The receiving device declined this transfer.” No library entry
+  was added.
+
+This is a real two-physical-device release-build test of approval, checksum
+verification, duplicate detection and rejection. It used manual pairing, not the
+camera. A direct camera-to-screen QR scan is still unverified, and the build was
+sideloaded rather than installed from Play.
+
+Store captures remain the 1080 x 1920 phone and 1340 x 800 tablet RGB images from
+the 27 October pass; the hardening changes were behavioral and did not redesign
+the captured screens. Live QR and policy-dialog captures remain local-only and
+gitignored under `store/screenshots/internal/`.
+
+This verifies the local artifact and the two-device manual path only. It was not
 uploaded to Play, installed from Play, or published. See
 [`docs/release-readiness.md`](docs/release-readiness.md) and
 [`docs/play-policy-audit.md`](docs/play-policy-audit.md) for the remaining human

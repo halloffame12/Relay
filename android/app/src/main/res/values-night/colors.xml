@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#242820</color>
-    <color name="relay_splash_background">#171A15</color>
-    <color name="relay_splash_icon_background">#242820</color>
+    <!-- The official icon is dark, so the splash stays warm paper in dark mode
+         too. Only the surrounding window tint changes. -->
+    <color name="ic_launcher_background">#0F0F11</color>
+    <color name="relay_splash_background">#F4F0E6</color>
+    <color name="relay_splash_icon_background">#0F0F11</color>
 </resources>

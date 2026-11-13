@@ -357,6 +357,39 @@ void main() {
         throwsA(isA<TransferProtocolException>()),
       );
     });
+
+    test('rejects pathological JSON nesting before parsing', () {
+      final nested = '${'[' * 5000}0${']' * 5000}';
+      expect(
+        () => WireMessage.decode(nested, maxBytes: 65536),
+        throwsA(
+          isA<TransferProtocolException>().having(
+            (error) => error.code,
+            'code',
+            'invalid_json',
+          ),
+        ),
+      );
+
+      final object =
+          '{"v":2,"type":"reject","reason":${'[' * 5000}'
+          '${']' * 5000}}';
+      expect(
+        () => WireMessage.decode(object, maxBytes: 65536),
+        throwsA(isA<TransferProtocolException>()),
+      );
+    });
+
+    test('brackets inside strings do not count as JSON nesting', () {
+      final reason = '[[[[ fair use ]]]]';
+      final decoded =
+          WireMessage.decode(
+                jsonEncode({'v': 2, 'type': 'reject', 'reason': reason}),
+                maxBytes: 65536,
+              )
+              as RejectMessage;
+      expect(decoded.reason, reason);
+    });
   });
 
   group('transfer progress', () {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/app_providers.dart';
@@ -54,6 +55,19 @@ class SettingsController extends Notifier<AppSettings> {
 
   void _update(AppSettings next) {
     state = next;
-    unawaited(ref.read(settingsRepositoryProvider).write(next));
+    unawaited(_persist(next));
+  }
+
+  Future<void> _persist(AppSettings settings) async {
+    try {
+      await ref.read(settingsRepositoryProvider).write(settings);
+    } catch (error) {
+      // Settings are a convenience, not user data. A failed preference write
+      // must not surface as an unhandled asynchronous error or block the UI.
+      assert(() {
+        debugPrint('Relay could not save settings: $error');
+        return true;
+      }());
+    }
   }
 }

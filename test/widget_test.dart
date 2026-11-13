@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:relay/app/theme/app_theme.dart';
+import 'package:relay/features/library/application/library_providers.dart';
+import 'package:relay/features/library/domain/document.dart';
+import 'package:relay/features/nearby/presentation/nearby_screen.dart';
 import 'package:relay/features/reader/domain/reading_progress.dart';
+import 'package:relay/features/transfers/application/transfer_providers.dart';
 import 'package:relay/features/transfers/domain/transfer_manifest.dart';
 import 'package:relay/features/transfers/domain/transfer_service.dart';
 import 'package:relay/features/transfers/domain/transfer_task.dart';
@@ -68,8 +74,9 @@ void main() {
     await tester.tap(find.text('Nearby').first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 900));
-    expect(find.text('Offer to receive'), findsWidgets);
-    expect(find.text('Same Wi-Fi required'), findsOneWidget);
+    expect(find.text('Send & receive'), findsOneWidget);
+    expect(find.text('Send documents'), findsOneWidget);
+    expect(find.text('Receive documents'), findsOneWidget);
     expect(find.text('Campus Phone'), findsNothing);
 
     await tester.tap(find.text('Transfers').first);
@@ -91,7 +98,7 @@ void main() {
     expect(find.text('Your library'), findsOneWidget);
   });
 
-  testWidgets('nearby shows exact receive details and fits a 320dp screen', (
+  testWidgets('legacy nearby screen shows exact receive details at 320dp', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(320, 640);
@@ -99,19 +106,28 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await pumpApp(
-      tester,
-      receiver: const ReceiverEndpoint(
-        isListening: true,
-        port: 40404,
-        pairingCode: '123456',
-        addresses: ['192.168.1.42'],
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          documentsProvider.overrideWith(
+            (ref) => Stream.value(const <Document>[]),
+          ),
+          transferServiceProvider.overrideWithValue(
+            FakeTransferService(
+              receiver: const ReceiverEndpoint(
+                isListening: true,
+                port: 40404,
+                pairingCode: '123456',
+                addresses: ['192.168.1.42'],
+              ),
+            ),
+          ),
+        ],
+        child: MaterialApp(theme: AppTheme.light, home: const NearbyScreen()),
       ),
     );
-
-    await tester.tap(find.text('Nearby').first);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Ready to receive'), findsOneWidget);
     expect(find.text('123456'), findsOneWidget);

@@ -1,14 +1,14 @@
 # Release readiness audit
 
-**Audit date:** 27 October 2026
+**Audit date:** 1 November 2026
 
-**Decision:** **PRODUCTION AAB SIGNED AND VERIFIED; NOT YET READY TO PUBLISH.**
-The permanent application ID, upload signing, branded assets, privacy policy and
-a final release-build transfer check are in place. The remaining work is Play
-Console account access, declarations and legal review, owner approval, a
-two-physical-device release test, a direct camera-to-screen QR test, and an
-authorized Play-installed build. This is not a claim that the app is ready for
-production release.
+**Decision:** **PRODUCTION AAB SIGNED, VERIFIED, AND TWO-DEVICE TESTED; NOT YET
+READY TO PUBLISH.** The permanent application ID, upload signing, branded assets,
+privacy policy and a final release-build two-physical-device transfer check are
+in place. The remaining work is Play Console account access, declarations and
+legal review, owner approval, a direct camera-to-screen QR test, and an authorized
+Play-installed build. This is not a claim that the app is ready for production
+release.
 
 No Play Console submission, upload or production publish was performed.
 
@@ -34,7 +34,7 @@ No Play Console submission, upload or production publish was performed.
 | Area | Status | Notes |
 | --- | --- | --- |
 | Target API | Pass | `targetSdk 36`, `minSdk 24`. Current Play requirement is Android 16 / API 36. |
-| Build and tests | Pass | Format clean, analyze clean, 120 tests pass, release AAB and APK build. |
+| Build and tests | Pass | Format clean (117 files), analyze clean, 129 tests pass, release AAB and APK build. |
 | App Bundle structure | Pass | `bundletool validate` exits 0; signed AAB validates; native libraries present. |
 | Application ID | Pass | `io.github.halloffame12.relay`; namespace and `MainActivity` package match. Permanent after the first Play upload. |
 | Release signing | Pass | AAB signed by alias `relay-upload`, not the debug key. Upload certificate SHA-256 recorded below. |
@@ -48,7 +48,7 @@ No Play Console submission, upload or production publish was performed.
 | Data safety | Draft only | Conservative draft prepared; peer-to-peer and ML Kit answers need owner/legal confirmation. |
 | Play Console account/track | **Blocker / unknown** | Account type and creation date are unknown; the required testing path cannot be confirmed. |
 | Store listing assets | **Available; owner review pending** | Play icon, feature graphic, seven recommended phone screenshots and four tablet screenshots are prepared. Content rating and target audience are not submitted. |
-| Release-device verification | **Partial** | Final APK installed on an Android 17 emulator and one physical Android 11 tablet. A final-build manual-fallback approval/checksum/duplicate check succeeded; the successful import occurred on the immediately preceding release-signed build, and the final APK reopened the preserved document in the reader. A two-physical-device release test is still outstanding. |
+| Release-device verification | **Pass, with open gaps** | Final upload-signed APK installed on two physical Android 16 devices. Manual pairing produced a 24.6 MB PDF import after the blocking approval, the receiver verified the checksum before import, a repeat send was recognized as a duplicate without overwrite, and an explicit rejection left no library entry. Direct camera-to-screen QR scanning and a Play-installed build remain unverified. |
 | Policy audit | Pass with human items | Technical review found no concrete code-level Play violation. Owner/legal/account actions remain. |
 
 ## Changes made in this audit
@@ -111,21 +111,53 @@ No Play Console submission, upload or production publish was performed.
      policy and accessibility changes.
    - Verified the final artifact and repeated a release-build manual transfer and
      duplicate check.
+9. **Reliability and security hardening (31 October–1 November 2026)**
+   - **Settings resilience:** corrupt, mistyped or unreadable preference values
+     are treated as missing/default instead of crashing startup. Reader text
+     scale is clamped to 0.85–1.45; a failed preference write is reported but
+     does not escape `SettingsController`.
+   - **Import cancellation:** a mid-copy `DocumentFileErrorCode.cancelled` now
+     maps to `ImportCancelledException`, so an intentional cancellation is not
+     reported as a generic import failure.
+   - **Streaming SHA-256:** replaced the completer/error-rethrow wrapper in
+     `LocalDocumentFileStore._sha256` with a single
+     `sha256.bind(file.openRead()).first` pipeline. This removes an unhandled
+     asynchronous error path while preserving size and checksum checks.
+   - **Untrusted display text:** new `lib/core/utils/untrusted_text.dart` strips
+     control, bidi and BOM characters, collapses whitespace, and caps
+     title/author/description/language/block lengths. It is applied to imported
+     metadata and EPUB parsing output.
+   - **JSON nesting guard:** transfer control JSON is rejected at more than 32
+     nesting levels before `jsonDecode`; brackets inside strings are not counted.
+   - **EPUB images:** EPUB blocks can now carry bounded raster images. Only
+     chapter-relative PNG, JPEG and GIF files with matching magic bytes are
+     accepted, with 8 MiB per image, 24 MiB per book and 40-image limits. SVG,
+     remote URLs, mismatches and over-budget images are skipped. The reader
+     renders the bounded bytes with `Image.memory`; word counts ignore images.
+   - **Pairing brute-force cap:** the receiver counts failed manual pairing
+     attempts and rotates the invitation and six-digit code after five failures.
+     The sender maps `pairing_locked` to a clear “too many incorrect attempts”
+     message.
+   - **Tests:** added or extended coverage for each change, including a
+     self-contained ZIP EPUB fixture (PNG, SVG, GIF-mismatch and remote images),
+     hostile metadata, corrupt settings, mid-copy cancellation, over-nested JSON
+     and a five-failure pairing lockout integration test.
 
-No transfer protocol, invitation format, storage algorithm, receiver-approval
-logic or checksum implementation was changed in this pass.
+The hardening pass did not change the invitation envelope, checksum algorithm,
+receiver-approval requirement, managed-file boundary or transfer state machine.
+It did change transfer-frame validation and pairing-attempt behavior.
 
 ## Verification performed
 
-Commands were run from `C:\startup\Relay` on 27 October 2026. The local signing
+Commands were run from `C:\startup\Relay` on 1 November 2026. The local signing
 configuration was read by Gradle and `keytool`; no password, private key or
 secret value was printed.
 
 | Check | Result |
 | --- | --- |
-| `dart format lib test` | 114 files checked, 0 changed. |
+| `dart format lib test` | 117 files checked, 0 changed. |
 | `flutter analyze --no-pub` | No issues found. |
-| `flutter test --no-pub` | 120 tests passed. |
+| `flutter test --no-pub --reporter compact` | 129 tests passed. |
 | `flutter build appbundle --release --no-pub` | Succeeded with no QA override or debug-signing flag. |
 | `flutter build apk --release --no-pub` | Succeeded; local sideload/test artifact only. |
 | `bundletool validate --bundle app-release.aab` | Exit 0; base module and native libraries present. |
@@ -134,10 +166,11 @@ secret value was printed.
 | `jarsigner -verify -certs app-release.aab` | Exit 0. Warnings about JarInputStream entry handling and the self-signed upload certificate are expected. |
 | APK `apksigner verify --print-certs` | APK Signature Scheme v2 verifies; same upload certificate. |
 | Embedded-file check | No `key.properties`, `.jks`, `.keystore`, `local.properties`, `debug.keystore`, or password/property strings found. |
-| Policy screen | Final APK shows effective 27 October 2026, the GitHub Issues URL and the Play-email contact wording. |
-| Camera denial / manual fallback | Release APK on emulator: denial guidance appears; manual address/port/code entry remains usable. |
-| Final-build transfer check | Emulator sender to physical tablet receiver over direct TCP using manual entry. The tablet already held the sample; it showed the blocking approval, verified size/SHA-256, and recognized a duplicate without overwrite. |
-| Reader content | The final APK reopened the preserved EPUB and displayed its text in the tablet reader. The successful import occurred on the immediately preceding release-signed build. |
+| Policy screen | Earlier release APK showed the effective 27 October 2026 policy, the GitHub Issues URL and Play-email contact wording; policy content was not changed in the hardening pass. |
+| Camera denial / manual fallback | Earlier release APK on emulator showed denial guidance and usable manual address/port/code entry; not re-exercised in the two-device run. |
+| Two-device successful transfer | A009P sender to V2575 receiver, both Android 16 / API 36, manual TCP pairing. Receiver showed blocking approval, imported the 24.6 MB PDF after verifying size/SHA-256, and library/details showed the document. |
+| Two-device duplicate check | Repeat send reported “Verified … already in your library” on the receiver and “already had this document” on the sender, with no overwrite. |
+| Two-device rejection check | Receiver reported “You declined …”; sender recorded a cancelled transfer; no library entry was added. |
 | Share accessibility | "Share locally" exposes a clickable labeled action; a new share clears prior manual connection fields. |
 | Launcher icon | Branded icon visible in Android 17 and Android 11 App info. |
 | Screenshot set | Phone captures 1080 x 1920 and tablet captures 1340 x 800, RGB; original sample content; no live token in upload assets. |
@@ -145,13 +178,13 @@ secret value was printed.
 ### Final production artifact
 
 - **AAB path:** `build/app/outputs/bundle/release/app-release.aab`
-- **AAB size:** 62,970,943 bytes (60.05 MiB)
+- **AAB size:** 63,001,502 bytes (60.08 MiB)
 - **AAB SHA-256:**
-  `99D21AD66DF2207BD28CA07C68B741950F14DA32E4C9581BE264440E164FF774`
+  `B2ADE2B061F50491EFFEA2C5962A4FA3417AF1027B93CD0FA0CDB9B72A3EAC96`
 - **Local test APK:** `build/app/outputs/flutter-apk/app-release.apk`
-- **APK size:** 84,343,683 bytes (80.44 MiB)
+- **APK size:** 84,360,067 bytes (80.45 MiB)
 - **APK SHA-256:**
-  `802E8C473B0B3FE02020E276314736E21CF0492D643B2C376655C37664CA6A8B`
+  `6621DD08129ADE857A2B33028700689465BEE0A1C7B0444F9A1B073E446F2BF2`
 - **Package:** `io.github.halloffame12.relay`
 - **Version:** `0.9.0` (`versionCode 1`)
 - **SDK levels:** min 24, target 36
@@ -171,29 +204,39 @@ secret value was printed.
 The AAB is upload-signed and structurally valid. This verifies the local bundle
 only; it does not verify a Play-installed build.
 
-### Release-build device verification
+### Release-build device verification (1 November 2026)
 
-- **Emulator:** Android 17 / API 37, final release APK, 1080 x 1920 override
-  during capture (reset afterward). Verified launch, policy, camera denial,
-  manual fallback, share accessibility, stale-field clearing and the launcher
-  icon in App info.
-- **Physical tablet:** RMP2105, Android 11 / API 30, 1340 x 800 landscape,
-  density 213, final release APK. Verified launch, branded app-info icon, receive
-  mode, manual connection details, receiver approval, checksum verification, a
-  send of a document already in the library that was recognized as a duplicate
-  without overwriting the existing copy, and reader content.
-- **Live transfer:** the emulator sender entered the tablet's IPv4 address, TCP
-  port and six-digit code, selected `The Quiet Orchard` (EPUB), confirmed the
-  destination, and waited for approval. The tablet showed the blocking approval
-  dialog before bytes were accepted. After approval, the tablet verified the
-  declared size and SHA-256 and recognized the document as already in the
-  library, without overwriting it.
-- **Screenshots:** the tablet reader capture was repeated on the final APK after
-  the live transfer. The tablet library/details/transfers captures were made on
-  the immediately preceding release-signed build; the only later code change was
-  the share-accessibility semantics, which does not affect those screens. The
-  final APK was installed on the same tablet and used for the live duplicate
-  check and reader check.
+- **Sender:** A009P, Android 16 / API 36, 1080 x 2344. Upload-signed APK installed
+  over the existing app. Wi-Fi was initially disabled and the device was on
+  mobile data.
+- **Receiver:** V2575, Android 16 / API 36, 720 x 1600. Upload-signed APK installed
+  fresh. Connected to `Airtel_kris_3077` with address `192.168.1.6/24`.
+- **Network correction:** the first send from the mobile-data sender failed with
+  the expected “could not reach the receiving device” message and created a
+  failed sender record. Wi-Fi was enabled; the sender obtained
+  `192.168.1.2/24`, and the manual path was retried with a fresh single-use code.
+- **Successful transfer:** the sender entered the receiver address
+  (`192.168.1.6`), TCP port (`33219`) and a fresh six-digit code, selected the
+  24.6 MB PDF `machine learning`, and confirmed the destination. The receiver
+  showed the blocking “Receive this document?” prompt before accepting bytes.
+  After approval it imported the file, verified every byte and the SHA-256, and
+  the library reported 1 document and 24.6 MB stored. Document details showed 14
+  pages and “Received from Relay device 1687 over Wi-Fi”. The sender recorded a
+  completed transfer to Relay device C5DB.
+- **Duplicate handling:** repeating the send made the receiver report
+  `Verified “machine learning”. It was already in your library.` The sender
+  recorded “The receiving device already had this document.” The existing
+  document was not overwritten.
+- **Explicit rejection:** a further send was declined on the receiver. The
+  receiver reported `You declined “machine learning”.` The sender recorded a
+  cancelled transfer with “The receiving device declined this transfer.” No
+  library entry was added.
+- **What was not tested:** this run used manual pairing. A direct
+  camera-to-screen QR scan was not performed; automated tests inject a scanner
+  view. The APK was sideloaded, not installed from Play.
+- **Screenshots:** store captures remain from the 27 October pass (1080 x 1920
+  phone, 1340 x 800 tablet, RGB). The hardening changes were behavioral and did
+  not redesign the captured screens.
 
 ### Earlier two-device physical tests
 
@@ -224,7 +267,8 @@ from the existing results.
   physical runs.
 - **Approval and integrity:** The receiver must approve before file bytes are
   accepted. Size and SHA-256 are verified; duplicates are rejected; temporary
-  files are cleaned up. The final APK repeated approval and duplicate handling.
+  files are cleaned up. The final two-device run repeated approval, duplicate
+  handling and explicit rejection.
 - **Managed-file boundary:** The receiver imports into app-managed storage with a
   generated internal filename. User-supplied filenames are not used as paths.
 - **Exported surface:** `MainActivity` is exported only as the launcher activity
@@ -242,6 +286,23 @@ from the existing results.
   action.
 - **Single-use form state:** A new share clears the prior manual connection
   values instead of presenting an expired code as if it were reusable.
+- **Settings cannot crash startup:** Corrupt or mistyped preference entries fall
+  back to defaults, non-finite/out-of-range text scale is clamped, and a failed
+  preference write is contained by the settings controller.
+- **Untrusted metadata is bounded:** Imported and EPUB-derived display text is
+  stripped of control/bidi/BOM characters and length-capped before persistence
+  or rendering.
+- **Parser resource guards:** Transfer JSON deeper than 32 levels is rejected
+  before decode. EPUB images are limited to verified chapter-relative raster
+  files with per-image, per-book and count budgets; SVG and remote images are not
+  loaded.
+- **Pairing attempt cap:** Five failed manual codes invalidate the current
+  invitation and rotate the code. This is a per-invitation cap, not a global
+  network rate limit.
+- **Async hashing path:** The managed-file SHA-256 pipeline now uses a single
+  stream binding instead of a completer with a rethrow path, removing an
+  unhandled asynchronous error. Mid-copy import cancellation maps to a dedicated
+  cancellation result.
 
 ### Accepted risks or disclosures
 
@@ -275,11 +336,22 @@ from the existing results.
   functionality, not shared, not encrypted in transit**. It treats ML Kit data as
   collected and, conservatively, **shared with Google**. The Play Console owner
   or legal adviser must confirm both before submission.
-- **Two-physical-device release test still open:** The final build was verified
-  with an emulator sender and one physical tablet receiver. A second physical
-  device was not available.
-- **Direct camera scan still open:** Prior physical tests scanned a QR image on a
-  monitor. The final-build send used manual entry.
+- **Direct camera-to-screen scan still open:** Prior physical tests scanned a QR
+  image displayed on a monitor. The final two-device run used manual entry. A
+  line-of-sight scan from the sender's camera to the receiver's own screen has
+  not been demonstrated.
+- **Play-installed build still open:** The final two-device run used a sideloaded
+  upload-signed APK. No build has been installed from Play, and the
+  Play-distributed signing certificate is not yet known.
+- **EPUB resource limits:** The EPUB container is still read fully into memory.
+  Extracted raster images are bounded (8 MiB each, 24 MiB per book, 40 images)
+  and are not lazily decoded; SVG and remote image sources are skipped. Text
+  blocks are capped at 50,000 characters, so pathological markup is truncated
+  rather than rendered in full. Very large or image-heavy EPUBs may be slower.
+- **Text-sanitization trade-off:** Bidi override/isolate controls in imported
+  text are stripped to prevent UI spoofing. Normal Arabic/Hebrew text is
+  preserved (ZWNJ/ZWJ are retained), but unusually crafted mixed-direction
+  formatting may render differently.
 - **Themed-icon appearance not exercised:** Round/monochrome resources are
   packaged, but the themed-icon launcher appearance was not separately visually
   verified.
@@ -321,7 +393,8 @@ from the existing results.
   are not submitted.
 - **No unsupported claims:** The listing draft does not claim Wi-Fi Direct,
   Bluetooth, automatic discovery, cloud sync, transport encryption, background
-  transfer or a tested two-physical-device final build.
+  transfer, direct camera QR, or a Play-installed final build. The completed
+  two-device manual PDF test is recorded in this audit.
 
 ## Blockers and human actions
 
@@ -349,12 +422,13 @@ from the existing results.
 
 ### Verification gaps before calling the release fully tested
 
-1. Install the final production-signed build on **two physical devices** on the
-   same Wi-Fi network and repeat EPUB and PDF transfers, rejection, duplicate
-   handling, expiry/rotation and cleanup.
+1. Repeat an **EPUB** transfer on two physical devices. The final hardware run
+   used a PDF; EPUB is covered by loopback integration tests and the reader test
+   suite, but the final two-device hardware path was not repeated with EPUB.
 2. Perform a direct **camera-to-phone-screen** QR scan with the sender's camera
-   aimed at the receiver's screen. The earlier scan used a monitor image. Treat
-   this as outstanding, not verified.
+   aimed at the receiver's screen. The earlier scan used a monitor image and the
+   final two-device run used manual entry. Treat this as outstanding, not
+   verified.
 3. Verify the **Play-installed internal-testing build**, not only a sideloaded
    APK, and record the Play App Signing certificate after an authorized upload.
 4. Optionally check the round/monochrome/themed launcher icon appearance on a
@@ -372,7 +446,8 @@ The local production-upload-signed AAB is built and verified. Remaining steps:
 3. Review the available feature graphic, phone screenshots, tablet screenshots
    and final listing copy.
 4. Confirm the Play Console account type and required testing path.
-5. Rebuild only if code or version changes:
+5. The current AAB already contains the 1 November hardening code. Rebuild only
+   if code or version changes:
    ```powershell
    flutter build appbundle --release --no-pub
    ```

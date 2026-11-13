@@ -53,3 +53,16 @@ app.*.map.json
 
 # Local verification captures may contain live invitation tokens or system UI.
 /store/screenshots/internal/
+
+# Local verification captures may contain live invitation tokens or system UI.
+/store/screenshots/internal/
+
+# Signaling reference service.
+/infra/signaling/node_modules/
+/infra/signaling/.env
+/infra/signaling/package-lock.json
+
+# Website (Next.js).
+/website/node_modules/
+/website/.next/
+/website/out/

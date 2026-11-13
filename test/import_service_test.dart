@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:relay/features/import/data/document_metadata_service.dart';
@@ -88,6 +89,77 @@ void main() {
     );
   });
 
+  test('cancellation during the copy is reported as cancelled', () async {
+    final source = File('${harness.root.path}/mid-copy.epub');
+    final bytes = Uint8List(2 * 1024 * 1024);
+    bytes.setAll(0, const [0x50, 0x4B, 0x03, 0x04]);
+    await source.writeAsBytes(bytes, flush: true);
+    final probe = await harness.fileStore.probe(
+      source.path,
+      format: DocumentFormat.epub,
+      maxBytes: 10 * 1024 * 1024,
+    );
+    final file = PickedImportFile(
+      name: 'Mid Copy.epub',
+      path: source.path,
+      sizeBytes: probe.sizeBytes,
+      format: DocumentFormat.epub,
+      sha256: probe.sha256,
+    );
+    final token = ImportCancellationToken();
+    var copyStarted = false;
+
+    await expectLater(
+      service.importFile(
+        file,
+        onProgress: (progress) {
+          if (progress > 0.05) {
+            copyStarted = true;
+            token.cancel();
+          }
+        },
+        cancellation: token,
+      ),
+      throwsA(isA<ImportCancelledException>()),
+    );
+
+    expect(copyStarted, isTrue);
+    expect(await harness.repository.getDocuments(), isEmpty);
+    expect(
+      await harness.libraryDirectory.exists()
+          ? await harness.libraryDirectory.list().toList()
+          : <FileSystemEntity>[],
+      isEmpty,
+    );
+  });
+
+  test(
+    'hostile document metadata is bounded and stripped of controls',
+    () async {
+      final hostile = FilePickerDocumentImportService(
+        repository: harness.repository,
+        fileStore: harness.fileStore,
+        metadataService: const _HostileMetadataService(),
+      );
+
+      final result = await hostile.importFile(picked, onProgress: (_) {});
+
+      expect(result.outcome, ImportOutcome.success);
+      final document = result.document!;
+      expect(document.title, 'T' * 200);
+      expect(document.author, 'A' * 120);
+      expect(document.description, 'D' * 2000);
+      expect(document.language, 'Not set');
+      expect(
+        document.title +
+            document.author +
+            document.description +
+            document.language,
+        isNot(matches(RegExp(r'[\u0000-\u001F\u007F\u202A-\u202E]'))),
+      );
+    },
+  );
+
   test('metadata failure removes the copied file', () async {
     final failing = FilePickerDocumentImportService(
       repository: harness.repository,
@@ -157,6 +229,24 @@ class _FailingMetadataService implements DocumentMetadataService {
     required DocumentFormat format,
   }) async {
     throw const FormatException('Not a readable document.');
+  }
+}
+
+class _HostileMetadataService implements DocumentMetadataService {
+  const _HostileMetadataService();
+
+  @override
+  Future<ImportedDocumentMetadata> inspect({
+    required String path,
+    required String displayName,
+    required DocumentFormat format,
+  }) async {
+    return ImportedDocumentMetadata(
+      title: '\u202E${'T' * 500}',
+      author: '\u0007${'A' * 300}',
+      language: 'en-US<script>',
+      description: '\u202A${'D' * 5000}',
+    );
   }
 }
 

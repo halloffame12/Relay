@@ -8,8 +8,10 @@ import 'package:relay/app/theme/app_theme.dart';
 import 'package:relay/features/library/application/library_providers.dart';
 import 'package:relay/features/library/domain/document.dart';
 import 'package:relay/features/nearby/application/share_intent_provider.dart';
+import 'package:relay/features/nearby/presentation/nearby_screen.dart';
 import 'package:relay/features/nearby/presentation/qr_scanner_screen.dart';
 import 'package:relay/features/nearby/presentation/qr_send_screen.dart';
+import 'package:relay/features/transfers/application/transfer_providers.dart';
 import 'package:relay/features/transfers/domain/transfer_invitation.dart';
 import 'package:relay/features/transfers/domain/transfer_service.dart';
 
@@ -30,35 +32,25 @@ TransferInvitation _invitation() {
   );
 }
 
-Future<TestHarness> _pumpApp(
+Future<void> _pumpNearby(
   WidgetTester tester, {
-  ReceiverEndpoint receiver = const ReceiverEndpoint.idle(),
-  TransferService? transferService,
-  bool seed = true,
+  required ReceiverEndpoint receiver,
 }) async {
-  final harness = (await tester.runAsync(
-    () => TestHarness.create(seed: seed),
-  ))!;
-  addTearDown(() => tester.runAsync(harness.dispose));
-  addTearDown(() async {
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump();
-  });
   await tester.pumpWidget(
-    await harness.buildApp(
-      receiver: receiver,
-      transferService: transferService,
+    ProviderScope(
+      overrides: [
+        documentsProvider.overrideWith(
+          (ref) => Stream.value(const <Document>[]),
+        ),
+        transferServiceProvider.overrideWithValue(
+          FakeTransferService(receiver: receiver),
+        ),
+      ],
+      child: MaterialApp(theme: AppTheme.light, home: const NearbyScreen()),
     ),
   );
   await tester.pump();
-  await tester.pump(const Duration(milliseconds: 900));
-  return harness;
-}
-
-Future<void> _openNearby(WidgetTester tester) async {
-  await tester.tap(find.text('Nearby').first);
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 900));
+  await tester.pump(const Duration(milliseconds: 100));
 }
 
 void main() {
@@ -73,7 +65,7 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
       final invitation = _invitation();
-      await _pumpApp(
+      await _pumpNearby(
         tester,
         receiver: ReceiverEndpoint(
           isListening: true,
@@ -83,7 +75,6 @@ void main() {
           invitation: invitation,
         ),
       );
-      await _openNearby(tester);
 
       expect(find.text('Ready to receive'), findsOneWidget);
       expect(find.byType(QrImageView), findsOneWidget);
@@ -107,7 +98,7 @@ void main() {
   testWidgets('connected receiver never shows a stale QR or pairing code', (
     tester,
   ) async {
-    await _pumpApp(
+    await _pumpNearby(
       tester,
       receiver: const ReceiverEndpoint(
         isListening: true,
@@ -117,7 +108,6 @@ void main() {
         peerName: 'Sender phone',
       ),
     );
-    await _openNearby(tester);
 
     expect(find.text('Sender connected'), findsOneWidget);
     expect(find.byType(QrImageView), findsNothing);

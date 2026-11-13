@@ -277,6 +277,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         const SizedBox(height: AppSpacing.lg),
         if (allItems.isEmpty)
           RelayEmptyState(
+            brand: true,
             icon: Icons.auto_stories_outlined,
             title: 'Your library is empty',
             message:

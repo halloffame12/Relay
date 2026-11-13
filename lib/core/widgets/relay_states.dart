@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_tokens.dart';
+import 'relay_brand_icon.dart';
 import 'relay_buttons.dart';
 
 class RelayEmptyState extends StatelessWidget {
@@ -12,6 +13,7 @@ class RelayEmptyState extends StatelessWidget {
     this.icon = Icons.auto_stories_outlined,
     this.action,
     this.compact = false,
+    this.brand = false,
   });
 
   final String title;
@@ -19,6 +21,9 @@ class RelayEmptyState extends StatelessWidget {
   final IconData icon;
   final Widget? action;
   final bool compact;
+
+  /// Shows the official Relay mark instead of a generic outline icon.
+  final bool brand;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +40,18 @@ class RelayEmptyState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: colors.line),
+              if (brand)
+                const RelayBrandIcon(size: 56, borderRadius: AppRadii.md)
+              else
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colors.line),
+                  ),
+                  child: Icon(icon, size: 23, color: colors.ink),
                 ),
-                child: Icon(icon, size: 23, color: colors.ink),
-              ),
               const SizedBox(height: AppSpacing.xl),
               Text(
                 title,

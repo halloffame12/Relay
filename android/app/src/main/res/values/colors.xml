@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#242820</color>
+    <!-- Sampled from store/brand/relay-icon.png. -->
+    <color name="ic_launcher_background">#0F0F11</color>
     <color name="relay_splash_background">#F4F0E6</color>
-    <color name="relay_splash_icon_background">#F4F0E6</color>
+    <color name="relay_splash_icon_background">#0F0F11</color>
 </resources>

@@ -7,12 +7,12 @@ import '../core/widgets/relay_states.dart';
 import '../features/import/presentation/import_screen.dart';
 import '../features/library/presentation/document_detail_screen.dart';
 import '../features/library/presentation/library_screen.dart';
-import '../features/nearby/presentation/nearby_screen.dart';
-import '../features/nearby/presentation/qr_scanner_screen.dart';
-import '../features/nearby/presentation/qr_send_screen.dart';
 import '../features/reader/presentation/reader_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
-import '../features/transfers/domain/transfer_invitation.dart';
+import '../features/share/presentation/share_home_screen.dart';
+import '../features/share/presentation/share_receive_screen.dart';
+import '../features/share/presentation/share_scanner_screen.dart';
+import '../features/share/presentation/share_send_screen.dart';
 import '../features/transfers/presentation/transfers_screen.dart';
 import 'navigation/relay_shell.dart';
 import 'theme/app_colors.dart';
@@ -56,7 +56,7 @@ GoRouter createRelayRouter() {
             routes: [
               GoRoute(
                 path: '/nearby',
-                builder: (context, state) => const NearbyScreen(),
+                builder: (context, state) => const ShareHomeScreen(),
               ),
             ],
           ),
@@ -100,49 +100,22 @@ GoRouter createRelayRouter() {
       GoRoute(
         path: '/nearby/scan',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const QrScannerScreen(),
+        builder: (context, state) => const ShareScannerScreen(),
       ),
       GoRoute(
         path: '/nearby/send',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) {
-          final invitation = state.extra;
-          if (invitation is! TransferInvitation) {
-            return const _InvalidSendLinkPage();
-          }
-          return QrSendScreen(invitation: invitation);
-        },
+        builder: (context, state) => const ShareSendScreen(),
+      ),
+      GoRoute(
+        path: '/nearby/receive',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const ShareReceiveScreen(),
       ),
     ],
     errorBuilder: (context, state) =>
         _RouteErrorPage(location: state.uri.toString()),
   );
-}
-
-class _InvalidSendLinkPage extends StatelessWidget {
-  const _InvalidSendLinkPage();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.relayColors;
-    return Scaffold(
-      backgroundColor: colors.canvas,
-      body: SafeArea(
-        child: RelayEmptyState(
-          icon: Icons.qr_code_scanner_rounded,
-          title: 'Scan before sending',
-          message:
-              'A receiver invitation is needed before this screen can open. '
-              'Return to Nearby and scan the receiver’s QR code.',
-          action: RelayButton(
-            label: 'Back to Nearby',
-            icon: Icons.arrow_back_rounded,
-            onPressed: () => context.go('/nearby'),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _RouteErrorPage extends StatelessWidget {

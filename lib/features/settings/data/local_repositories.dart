@@ -19,10 +19,17 @@ class PrefsSettingsRepository implements SettingsRepository {
     try {
       final decoded = jsonDecode(raw);
       if (decoded is Map<String, dynamic>) {
-        return AppSettings.fromJson(decoded);
+        final settings = AppSettings.fromJson(decoded);
+        final scale = settings.readerTextScale;
+        return settings.copyWith(
+          readerTextScale: scale.isFinite
+              ? scale.clamp(0.85, 1.45).toDouble()
+              : 1.0,
+        );
       }
-    } on FormatException {
-      // Fall back to defaults if a stored value is unreadable.
+    } catch (_) {
+      // Stored preferences are untrusted input. A truncated write, a removed
+      // enum value or a field with the wrong type must never prevent startup.
     }
     return const AppSettings();
   }

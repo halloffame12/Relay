@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../app/theme/app_tokens.dart';
+import '../../../core/utils/untrusted_text.dart';
 import '../../library/domain/document.dart';
 import '../../library/domain/document_file_store.dart';
 import '../../library/domain/document_repository.dart';
@@ -113,30 +114,37 @@ class FilePickerDocumentImportService implements DocumentImportService {
       checkCancelled();
 
       onProgress(0.9);
-      final title = await _uniqueTitle(
-        metadata.title.trim().isEmpty
-            ? _titleFromFileName(file.name)
-            : metadata.title,
+      final metadataTitle = UntrustedText.clean(
+        metadata.title,
+        maxLength: UntrustedText.maxTitleLength,
       );
+      final title = await _uniqueTitle(
+        metadataTitle.isEmpty ? _titleFromFileName(file.name) : metadataTitle,
+      );
+      final author = UntrustedText.clean(
+        metadata.author,
+        maxLength: UntrustedText.maxAuthorLength,
+      );
+      final description = UntrustedText.clean(
+        metadata.description,
+        maxLength: UntrustedText.maxDescriptionLength,
+      );
+      final language = UntrustedText.language(metadata.language);
       final now = DateTime.now();
       final document = Document(
         id: _newId(),
         title: title,
-        author: metadata.author.trim().isEmpty
-            ? 'Unknown author'
-            : metadata.author.trim(),
+        author: author.isEmpty ? 'Unknown author' : author,
         source: file.sourceLabel,
         format: file.format,
         sizeBytes: stored.sizeBytes,
         addedAt: now,
-        description: metadata.description.trim().isEmpty
+        description: description.isEmpty
             ? file.fallbackDescription
-            : metadata.description.trim(),
+            : description,
         coverDesign: _coverDesign(file.sha256),
         coverPalette: _coverPalette(file.sha256),
-        language: metadata.language.trim().isEmpty
-            ? 'Not set'
-            : metadata.language.trim(),
+        language: language.isEmpty ? 'Not set' : language,
         pageCount: metadata.pageCount,
         isImported: true,
         fileName: file.name,
@@ -162,6 +170,9 @@ class FilePickerDocumentImportService implements DocumentImportService {
     } on ImportCancelledException {
       rethrow;
     } on DocumentFileException catch (error) {
+      if (error.code == DocumentFileErrorCode.cancelled) {
+        throw const ImportCancelledException();
+      }
       return ImportResult.failure(error.message);
     } catch (_) {
       return ImportResult.failure(
@@ -210,9 +221,11 @@ class FilePickerDocumentImportService implements DocumentImportService {
   String _titleFromFileName(String displayName) {
     final stem = p.basenameWithoutExtension(displayName).trim();
     if (stem.isEmpty) return 'Untitled document';
-    return stem
-        .replaceAll(RegExp(r'[_-]+'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ');
+    final title = UntrustedText.clean(
+      stem.replaceAll(RegExp(r'[_-]+'), ' '),
+      maxLength: UntrustedText.maxTitleLength,
+    );
+    return title.isEmpty ? 'Untitled document' : title;
   }
 
   Future<String> _uniqueTitle(String title) async {

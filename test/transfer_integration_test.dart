@@ -971,6 +971,66 @@ void main() {
     expect(await sender.transfers.getTransfers(), hasLength(1));
   });
 
+  test('rotates the manual pairing code after five failed attempts', () async {
+    final sender = await _Device.create(name: 'Code sender');
+    final receiver = await _Device.create(name: 'Code receiver');
+    final approver = _AutoApprover();
+    addTearDown(() async {
+      await approver.dispose();
+      await sender.dispose();
+      await receiver.dispose();
+    });
+
+    final bytes = _pdfBytes('pairing lockout');
+    final document = await sender.addDocument(
+      fileName: 'Pairing notes.pdf',
+      bytes: bytes,
+      format: DocumentFormat.pdf,
+      title: 'Pairing notes',
+    );
+    final endpoint = await receiver.service.startReceiving();
+    final firstCode = endpoint.pairingCode;
+    expect(firstCode, matches(RegExp(r'^\d{6}$')));
+    final wrongCode = firstCode == '000000' ? '111111' : '000000';
+
+    for (var attempt = 0; attempt < 4; attempt++) {
+      final task = await sender.service.sendDocument(
+        documentId: document.id,
+        host: _loopback,
+        port: endpoint.port!,
+        pairingCode: wrongCode,
+      );
+      expect(task.status, TransferStatus.failed);
+      expect(receiver.service.currentReceiver.pairingCode, firstCode);
+    }
+
+    final locked = await sender.service.sendDocument(
+      documentId: document.id,
+      host: _loopback,
+      port: endpoint.port!,
+      pairingCode: wrongCode,
+    );
+    expect(locked.status, TransferStatus.failed);
+    expect(locked.failureReason, contains('Too many incorrect pairing'));
+
+    final rotated = receiver.service.currentReceiver;
+    expect(rotated.phase, ReceiverPhase.waiting);
+    expect(rotated.pairingCode, isNotNull);
+    expect(rotated.pairingCode, isNot(firstCode));
+    expect(rotated.statusMessage, contains('Too many incorrect pairing codes'));
+
+    approver.start(receiver.service);
+    final task = await sender.service.sendDocument(
+      documentId: document.id,
+      host: _loopback,
+      port: endpoint.port!,
+      pairingCode: rotated.pairingCode!,
+    );
+    expect(task.status, TransferStatus.completed);
+    expect(approver.seenIds, hasLength(1));
+    expect(await receiver.documents.getDocuments(), hasLength(1));
+  });
+
   test('QR connection tries each advertised address without exposing the '
       'credential', () async {
     final sender = await _Device.create(

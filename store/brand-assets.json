@@ -1,11 +1,19 @@
 {
   "generated_by": "tool/generate_brand_assets.py",
+  "source": {
+    "path": "store/brand/relay-icon.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "9bdd72a852a123f450e71cfe44b580a453a82762429e9f8954d5774d070e373f"
+  },
   "palette": {
-    "forest_ink": "#242820",
+    "forest_ink": "#0F0F11",
     "warm_paper": "#F4F0E6",
     "terracotta": "#D96C4F",
     "sage": "#D8E0CF",
-    "olive_gray": "#79796F"
+    "lime": "#C2F050"
   },
   "play_store": {
     "icon": "store/icon-512.png",

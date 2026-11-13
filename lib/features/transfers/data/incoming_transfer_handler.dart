@@ -9,6 +9,7 @@ abstract interface class IncomingTransferHandler {
     required String temporaryPath,
     required TransferManifest manifest,
     required String peerName,
+    String transportLabel = 'Wi-Fi',
   });
 }
 
@@ -22,6 +23,7 @@ class LocalIncomingTransferHandler implements IncomingTransferHandler {
     required String temporaryPath,
     required TransferManifest manifest,
     required String peerName,
+    String transportLabel = 'Wi-Fi',
   }) {
     return _importService.importFile(
       PickedImportFile(
@@ -30,10 +32,10 @@ class LocalIncomingTransferHandler implements IncomingTransferHandler {
         sizeBytes: manifest.sizeBytes,
         format: manifest.format,
         sha256: manifest.sha256,
-        sourceLabel: 'Received from $peerName over Wi-Fi',
+        sourceLabel: 'Received from $peerName over $transportLabel',
         fallbackDescription:
-            'Received directly from $peerName on the local network. '
-            'No cloud service was involved.',
+            'Received directly from $peerName over $transportLabel. '
+            'No cloud storage was involved.',
       ),
       onProgress: (_) {},
     );

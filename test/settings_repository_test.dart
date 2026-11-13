@@ -44,6 +44,53 @@ void main() {
     expect(settings.libraryView, LibraryViewMode.grid);
   });
 
+  test('corrupt or hostile stored settings never escape read()', () async {
+    const corruptValues = [
+      '{"theme":"neon"}',
+      '{"libraryView":42}',
+      '{"readerTextScale":"large"}',
+      '{"reduceMotion":"yes"}',
+      '{"readerTextScale":null}',
+      '[]',
+      '"a string"',
+      '{"theme":',
+      '{"theme":"dark","readerTextScale":99}',
+      '{"theme":"dark","readerTextScale":-4}',
+    ];
+    for (final raw in corruptValues) {
+      SharedPreferences.setMockInitialValues({'relay.settings.v1': raw});
+      final preferences = await SharedPreferences.getInstance();
+      final settings = PrefsSettingsRepository(preferences).read();
+
+      expect(
+        settings.readerTextScale,
+        inInclusiveRange(0.85, 1.45),
+        reason: 'raw value: $raw',
+      );
+      expect(
+        settings.theme,
+        isA<AppThemePreference>(),
+        reason: 'raw value: $raw',
+      );
+    }
+  });
+
+  test(
+    'persisted reader scale is clamped while valid fields are kept',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        'relay.settings.v1':
+            '{"theme":"dark","libraryView":"list","readerTextScale":99}',
+      });
+      final preferences = await SharedPreferences.getInstance();
+      final settings = PrefsSettingsRepository(preferences).read();
+
+      expect(settings.theme, AppThemePreference.dark);
+      expect(settings.libraryView, LibraryViewMode.list);
+      expect(settings.readerTextScale, 1.45);
+    },
+  );
+
   test('reader text step snaps to the closest supported step', () {
     const settings = AppSettings(readerTextScale: 1.29);
     expect(settings.readerTextStep, 3);

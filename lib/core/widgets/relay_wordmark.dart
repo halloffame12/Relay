@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../../app/theme/app_tokens.dart';
 import '../../app/theme/app_typography.dart';
+import 'relay_brand_icon.dart';
 
 class RelayWordmark extends StatelessWidget {
   const RelayWordmark({super.key, this.compact = false, this.onTap});
@@ -16,13 +18,7 @@ class RelayWordmark extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: compact ? 22 : 26,
-          height: compact ? 22 : 26,
-          child: CustomPaint(
-            painter: _RelayMarkPainter(ink: colors.ink, accent: colors.accent),
-          ),
-        ),
+        RelayBrandIcon(size: compact ? 24 : 28, borderRadius: AppRadii.sm),
         if (!compact) ...[
           const SizedBox(width: 9),
           Text(
@@ -51,49 +47,5 @@ class RelayWordmark extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _RelayMarkPainter extends CustomPainter {
-  const _RelayMarkPainter({required this.ink, required this.accent});
-
-  final Color ink;
-  final Color accent;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = ink.withValues(alpha: 0.55)
-      ..strokeWidth = 1.2
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    final line = Path()
-      ..moveTo(size.width * 0.22, size.height * 0.76)
-      ..cubicTo(
-        size.width * 0.4,
-        size.height * 0.68,
-        size.width * 0.6,
-        size.height * 0.35,
-        size.width * 0.8,
-        size.height * 0.24,
-      );
-    canvas.drawPath(line, stroke);
-
-    canvas.drawCircle(
-      Offset(size.width * 0.22, size.height * 0.76),
-      size.width * 0.14,
-      Paint()..color = ink,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.8, size.height * 0.24),
-      size.width * 0.11,
-      Paint()..color = accent,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _RelayMarkPainter oldDelegate) {
-    return oldDelegate.ink != ink || oldDelegate.accent != accent;
   }
 }

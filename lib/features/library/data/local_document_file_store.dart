@@ -263,30 +263,19 @@ class LocalDocumentFileStore implements DocumentFileStore {
   }
 
   Future<String> _sha256(File file) async {
-    final completer = Completer<String>();
-    final sink = sha256.startChunkedConversion(
-      ChunkedConversionSink<Digest>.withCallback((digests) {
-        if (!completer.isCompleted && digests.isNotEmpty) {
-          completer.complete(digests.first.toString());
-        }
-      }),
-    );
     try {
-      await for (final chunk in file.openRead()) {
-        sink.add(chunk);
-      }
-      sink.close();
-      return await completer.future;
-    } catch (_) {
-      if (!completer.isCompleted) {
-        completer.completeError(
-          const DocumentFileException(
-            'Relay could not verify that file on this device.',
-            code: DocumentFileErrorCode.inaccessible,
-          ),
-        );
-      }
-      rethrow;
+      final digest = await sha256.bind(file.openRead()).first;
+      return digest.toString();
+    } on FileSystemException {
+      throw const DocumentFileException(
+        'Relay could not verify that file on this device.',
+        code: DocumentFileErrorCode.inaccessible,
+      );
+    } on StateError {
+      throw const DocumentFileException(
+        'That file changed while Relay was checking it. Choose it again.',
+        code: DocumentFileErrorCode.inaccessible,
+      );
     }
   }
 
