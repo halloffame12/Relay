@@ -18,13 +18,13 @@ export default function About() {
         <section className="section">
           <div className="container">
             <Reveal>
-              <div className="philosophy-grid">
+              <div className="philosophy-grid grid-2 asym">
                 <div>
                   <div className="eyebrow">[ MANIFESTO ]</div>
                   <h1 className="display display-2" style={{ margin: "14px 0 24px" }}>
                     Software built for calm reading and quiet transfers.
                   </h1>
-                  <blockquote className="philosophy-quote-lg">
+                  <blockquote className="philosophy-quote-lg about-quote">
                     "Relay is built around a simple idea: your documents should be easy to read, keep, and share."
                   </blockquote>
                 </div>
@@ -65,9 +65,9 @@ export default function About() {
               </div>
             </Reveal>
 
-            <div className="principles-grid">
-              <div className="principle-item">
-                <div className="principle-idx">01</div>
+            <div className="principles-grid principles">
+              <div className="principle-item principle">
+                <div className="principle-idx idx">01</div>
                 <div>
                   <h4>Local First</h4>
                   <p>
@@ -76,8 +76,8 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="principle-item">
-                <div className="principle-idx">02</div>
+              <div className="principle-item principle">
+                <div className="principle-idx idx">02</div>
                 <div>
                   <h4>Explicit Receiver Consent</h4>
                   <p>
@@ -86,8 +86,8 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="principle-item">
-                <div className="principle-idx">03</div>
+              <div className="principle-item principle">
+                <div className="principle-idx idx">03</div>
                 <div>
                   <h4>Cryptographic Verification</h4>
                   <p>
@@ -96,8 +96,8 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="principle-item">
-                <div className="principle-idx">04</div>
+              <div className="principle-item principle">
+                <div className="principle-idx idx">04</div>
                 <div>
                   <h4>Honest Product Communication</h4>
                   <p>
@@ -112,7 +112,7 @@ export default function About() {
         {/* The Brand Mark */}
         <section className="section">
           <div className="container">
-            <div className="privacy-grid" style={{ alignItems: "center" }}>
+            <div className="privacy-grid grid-2 asym" style={{ alignItems: "center" }}>
               <div>
                 <div className="eyebrow">[ BRAND IDENTITY ]</div>
                 <h2 className="display display-3" style={{ margin: "12px 0 16px" }}>
@@ -141,9 +141,9 @@ export default function About() {
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <div
                   style={{
-                    width: 220,
-                    height: 220,
-                    borderRadius: 36,
+                    width: 200,
+                    height: 200,
+                    borderRadius: 32,
                     overflow: "hidden",
                     boxShadow: "var(--shadow-lg)",
                     border: "2px solid var(--line)",
@@ -152,8 +152,8 @@ export default function About() {
                   <Image
                     src="/assets/brand/relay-icon.png"
                     alt="Official Relay Brand Icon"
-                    width={220}
-                    height={220}
+                    width={200}
+                    height={200}
                     priority
                   />
                 </div>
