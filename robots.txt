@@ -1,4 +1,4 @@
 User-Agent: *
 Allow: /
 
-Sitemap: https://halloffame12.github.io/Relay/sitemap.xml
+Sitemap: https://sumitchauhan.me/Relay/sitemap.xml
