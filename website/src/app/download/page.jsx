@@ -25,8 +25,11 @@ export default function Download() {
                 <p className="body" style={{ margin: 0 }}>Install the release build directly, or get it from Google Play when the listing is published.</p>
               </div>
               <div className="row">
-                <a className="btn btn-primary" href="https://github.com/halloffame12/Relay">View source on GitHub <span className="arrow">→</span></a>
-                <span className="coming-soon" style={{ flex: 1, minWidth: 240 }}>Google Play listing is not published yet. Release APKs are attached to GitHub releases when available.</span>
+                <a className="btn btn-primary" href="https://github.com/halloffame12/Relay/releases/download/v0.9.0/app-release.apk">Download APK <span className="arrow">↓</span></a>
+                <a className="btn btn-secondary" href="https://github.com/halloffame12/Relay/releases/download/v0.9.0/app-release.aab">Download AAB <span className="arrow">↓</span></a>
+              </div>
+              <div className="coming-soon" style={{ flex: 1, minWidth: 240 }}>
+                Google Play listing is not published yet. The buttons above provide the release artifacts from GitHub.
               </div>
               <div className="download-meta">
                 <div className="meta-item"><div className="label">Version</div><div className="value">0.9.0</div></div>
