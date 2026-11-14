@@ -289,6 +289,8 @@ The subpath export is published to the `gh-pages` branch with `.nojekyll`, and G
 
 Fixing that requires either removing the catch-all behaviour from the portfolio deployment or proxying `/Relay/*` to GitHub Pages. That change belongs to the portfolio project, not this repository.
 
+Because the Vercel project root is `website/`, each push to `gh-pages` also creates a Preview deployment that fails immediately with `The specified Root Directory "website" does not exist`. Production deployments from `main` are unaffected. Vercel's Ignored Build Step cannot prevent this because the root-directory check runs first; disabling previews for that branch or changing the project root would be required.
+
 ### Restrictive networks
 
 The site itself is static and needs no TURN server. Cross-network sharing in the app needs a deployed WebSocket signaling endpoint and TURN credentials; those are not configured in the published APK. The site does not imply otherwise.
