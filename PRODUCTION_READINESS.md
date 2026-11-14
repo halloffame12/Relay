@@ -103,9 +103,12 @@ runs without networking, WebRTC, or TURN.
   heading, alt-text, and link checks pass.
 - Download page links to the real GitHub release and carries the published APK,
   AAB, and certificate SHA-256 values.
-- The rebuilt site is uncommitted and undeployed. The live GitHub Pages site
-  still serves the previous design. Deployment details, evidence, and remaining
-  gaps are in `WEBSITE_READINESS.md`.
+- Live at <https://relay-three-red.vercel.app>, auto-deployed from `main`.
+  Post-deploy checks confirmed all routes, assets, canonical/OG metadata, and the
+  release asset sizes. The `gh-pages` subpath build is published too, but
+  `sumitchauhan.me/Relay` is currently shadowed by the portfolio deployment, so
+  the Vercel URL is the canonical live site. Evidence and gaps are in
+  `WEBSITE_READINESS.md`.
 
 ## Known limitations (not implemented, documented honestly)
 
@@ -140,9 +143,9 @@ runs without networking, WebRTC, or TURN.
 4. Decide on resume-after-drop scope (implement or document as out of scope).
 5. Re-run `flutter test` and a release build after any signalling URL or
    infra change.
-6. Commit and deploy the rebuilt website to Vercel (or publish the GitHub Pages
-   build). Publishing needs explicit approval; the site itself is static and
-   needs no paid infrastructure.
+6. Publish the GitHub Pages subpath build only after `/Relay/*` routing on
+   `sumitchauhan.me` is fixed; the branch is current but shadowed by the
+   portfolio app. The Vercel site is already deployed.
 
 ## Continuation instructions
 

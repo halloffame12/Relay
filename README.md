@@ -274,9 +274,10 @@ the canonical one.
 
 ## Website
 
-The official site is a Next.js 15 App Router static export in `website/`. It
-covers the two product experiences (reading continuity and QR sharing), honest
-connection paths, and the real download hashes.
+The official site is a Next.js 15 App Router static export in `website/`, live at
+<https://relay-three-red.vercel.app>. It covers the two product experiences
+(reading continuity and QR sharing), honest connection paths, and the real
+download hashes.
 
 ```powershell
 cd website
@@ -285,10 +286,13 @@ npm run build        # static export to website/out
 npm run dev          # local development
 ```
 
-- `NEXT_PUBLIC_SITE_URL` sets canonical/Open Graph/sitemap URLs. Fallback:
-  `https://sumitchauhan.me/Relay`.
+- `NEXT_PUBLIC_SITE_URL` sets canonical/Open Graph/sitemap URLs. When unset,
+  `website/src/lib/site.js` uses Vercel's injected production host, then falls
+  back to `https://sumitchauhan.me/Relay`.
 - `BASE_PATH` is optional and only needed for a sub-path build such as GitHub
-  Pages (`$env:BASE_PATH="/Relay"`). Leave it empty for Vercel.
+  Pages (`$env:BASE_PATH="/Relay"`). Leave it empty for Vercel. The `gh-pages`
+  branch is published, but `sumitchauhan.me/Relay` is currently answered by the
+  portfolio deployment, so the Vercel URL is the canonical live site.
 - Design, routes, assets, responsive/accessibility evidence, and remaining
   deployment gaps are recorded in [`WEBSITE_READINESS.md`](WEBSITE_READINESS.md).
 

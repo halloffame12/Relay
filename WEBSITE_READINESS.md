@@ -1,10 +1,10 @@
 # Relay Official Website — Readiness & Design Record
 
-**Status:** Built and locally verified. Not yet deployed.
+**Status:** Deployed and smoke-tested on Vercel. GitHub Pages build published but shadowed by the portfolio domain.
 **Last updated:** 14 November 2026
 **Website:** `C:\startup\Relay\website` (Next.js 15 App Router, React 19)
 **App release referenced:** Relay 0.9.0 (Android)
-**Production URL:** `https://sumitchauhan.me/Relay` (via `NEXT_PUBLIC_SITE_URL`), with an optional GitHub Pages build
+**Production URL:** `https://relay-three-red.vercel.app` (Vercel project `relay`, auto-deployed from `main`)
 
 ---
 
@@ -248,7 +248,7 @@ npm run build
 - Output: `website/out/`.
 - Build result: **7 routes plus the 404 page, `robots.txt`, and `sitemap.xml` generated without errors or type/lint blockers.**
 - `BASE_PATH` is optional. Leave it empty for a root deployment (Vercel); set `BASE_PATH=/Relay` only for the GitHub Pages project build. `next.config.js` exposes it as `NEXT_PUBLIC_BASE_PATH`, and `src/lib/asset.js` prefixes public image, icon, and favicon URLs so a subpath build does not request assets from the domain root.
-- `NEXT_PUBLIC_SITE_URL` controls canonical URLs, Open Graph URLs, `robots.txt`, and `sitemap.xml`. Fallback: `https://sumitchauhan.me/Relay`.
+- `NEXT_PUBLIC_SITE_URL` controls canonical URLs, Open Graph URLs, `robots.txt`, and `sitemap.xml`. When it is unset, `src/lib/site.js` falls back to Vercel's injected `VERCEL_PROJECT_PRODUCTION_URL`, then to `https://sumitchauhan.me/Relay`.
 
 Local preview used during verification:
 
@@ -263,17 +263,21 @@ The export is plain HTML/CSS/JS; no server runtime is required.
 
 ## 12. Deployment
 
-### Vercel (intended target)
+### Vercel (live)
 
-1. Import `halloffame12/Relay`.
-2. Set the project root to `website`.
-3. Framework preset: Next.js. Build command `npm run build`. Output directory `out`.
-4. Add `NEXT_PUBLIC_SITE_URL` with the final URL. Do not set `BASE_PATH`.
-5. Deploy.
+Deployed as project `relay` under `sumits-projects-319df29b`, linked to `halloffame12/Relay` and built from `main`.
 
-Cost: a hobby/personal Vercel project is free for this static site. A custom domain is the only likely cost; `sumitchauhan.me` is already owned. No paid signaling, TURN, database, or email service is required for the site itself.
+1. Project root: `website`.
+2. Framework preset: Next.js. Build command `npm run build`. Output directory `out`.
+3. `BASE_PATH` is not set.
+4. `NEXT_PUBLIC_SITE_URL` is not set; canonical, Open Graph, sitemap, and robots derive from Vercel's production host through `src/lib/site.js`.
+5. Production URL: `https://relay-three-red.vercel.app`.
 
-### GitHub Pages (optional)
+Verified on 14 November 2026: `/`, `/about`, `/features`, `/how-it-works`, `/download`, `/privacy`, `/terms`, `/sitemap.xml`, and `/robots.txt` return 200; an unknown path returns 404; brand images, screenshots, and `favicon.ico` return 200 with correct content types.
+
+Cost: the hobby/personal Vercel plan is free for this static site. A custom domain is the only likely cost; `sumitchauhan.me` is already owned. No paid signaling, TURN, database, or email service is required for the site itself.
+
+### GitHub Pages (published but currently unreachable)
 
 ```powershell
 $env:BASE_PATH="/Relay"
@@ -281,7 +285,9 @@ $env:NEXT_PUBLIC_SITE_URL="https://sumitchauhan.me/Relay"
 npm run build
 ```
 
-Publish `website/out` to the Pages branch. `sumitchauhan.me/Relay/` currently resolves to the existing GitHub Pages site; that deployment still serves the older design until a new build is published. Publishing requires explicit approval.
+The subpath export is published to the `gh-pages` branch with `.nojekyll`, and GitHub Pages reports the build as successful. However, `sumitchauhan.me` is claimed as the custom domain of `halloffame12/halloffame12.github.io` and is served by a Cloudflare-fronted portfolio app that returns its own `index.html` for every path. As a result, `https://sumitchauhan.me/Relay/` and every `/Relay/*` asset currently return the portfolio page, not Relay. The Relay site is therefore served only from Vercel.
+
+Fixing that requires either removing the catch-all behaviour from the portfolio deployment or proxying `/Relay/*` to GitHub Pages. That change belongs to the portfolio project, not this repository.
 
 ### Restrictive networks
 
@@ -298,17 +304,22 @@ The site itself is static and needs no TURN server. Cross-network sharing in the
 | Interaction audit | Tabs, flow, theme, drawer, 404 | Pass |
 | Subpath asset check | `BASE_PATH=/Relay` build | Every image/icon/favicon URL prefixed with `/Relay` |
 | Heading/alt/link audit | All public routes | 1 h1 each; 0 images without alt; 0 unnamed links |
+| Live route smoke test | `curl` against `relay-three-red.vercel.app` | 9 routes 200, unknown path 404 |
+| Live asset check | `curl` brand images, screenshot, favicon | 200 with correct content types |
+| Live canonical/OG | `curl` homepage HTML | Canonical, `og:url`, and `og:image` all use `relay-three-red.vercel.app` |
+| Live overflow audit | Puppeteer against production URL | `[]` |
+| Release download reachability | `curl -L -r 0-0` release assets | APK 122,825,167 bytes; AAB 82,497,107 bytes |
 | Dart format | `dart format --output=none --set-exit-if-changed lib test` | Clean |
 | Flutter analyze | `flutter analyze --no-pub` | No issues found |
 | Flutter tests | `flutter test --no-pub` | 202 passing |
 
-Screenshots and audit JSON from this pass are in the session temp folder (`shots2/`), not committed, because they are verification artifacts rather than site assets.
+Screenshots and audit JSON from this pass are in the session temp folder (`live-shots/`), not committed, because they are verification artifacts rather than site assets.
 
 ---
 
 ## 14. Known limitations and remaining issues
 
-1. **Not deployed.** The rebuilt site is uncommitted and unpublished. The live GitHub Pages site still serves the previous design.
+1. **Domain shadowing on GitHub Pages.** The `gh-pages` build is published and builds cleanly, but `sumitchauhan.me/Relay/*` is answered by the portfolio deployment's catch-all. The working production URL is `https://relay-three-red.vercel.app`. Do not advertise `sumitchauhan.me/Relay` until the portfolio routing is changed.
 2. **No cross-network deployment.** Without `RELAY_SIGNALING_URL` and TURN credentials, the site can only describe cross-network support as available-when-configured. It does not claim the published APK can do it.
 3. **No fresh share-flow screenshots.** The sharing visuals are illustrative HTML/CSS. Capturing the real screens needs two connected Android devices; none were available via adb.
 4. **No Play Store presence.** No Play Console access, no Data Safety sign-off, and no listing. The site links to GitHub Releases only.
@@ -331,5 +342,5 @@ Screenshots and audit JSON from this pass are in the session temp folder (`shots
 - [x] Claims match the published APK, including same-network-only sharing.
 - [x] Privacy and terms pages exist and are linked.
 - [x] Canonical URL, Open Graph, favicon, sitemap, and robots are configured.
-- [ ] Final approval to commit and deploy.
-- [ ] Post-deploy smoke test on the production URL.
+- [x] Deployed and committed.
+- [x] Post-deploy smoke test on the production URL.

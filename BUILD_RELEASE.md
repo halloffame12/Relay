@@ -119,7 +119,25 @@ flutter build appbundle --release
 
 ---
 
-## 5. Signing & Security Status
+## 5. Publication Status
+
+- **GitHub Release:** <https://github.com/halloffame12/Relay/releases/tag/v0.9.0>
+  carries the APK and AAB listed above. GitHub reports asset sizes of 122,825,167
+  bytes and 82,497,107 bytes and digests matching the local SHA-256 values.
+- **Download check:** both release URLs redirect to the asset CDN and return
+  HTTP 200; ranged requests report the same total byte counts.
+- **Source:** all code, brand resources, documentation, and the website are
+  committed on `main`.
+- **Website:** <https://relay-three-red.vercel.app> auto-deploys from `main`.
+  Canonical URLs, Open Graph tags, sitemap, and robots use that host.
+- **GitHub Pages:** the `gh-pages` branch contains the `/Relay` subpath build and
+  the Pages build succeeds, but `sumitchauhan.me/Relay` is currently answered by
+  the portfolio deployment's catch-all. Do not link that URL for Relay until the
+  portfolio routing is changed.
+
+---
+
+## 6. Signing & Security Status
 
 - **Signing Config:** Production upload release signing is active via `android/key.properties`.
 - **Keystore Location:** `C:/Users/SUMIT CHAUHAN/RelayKeys/relay-upload.jks` (securely untracked by Git).
@@ -133,13 +151,13 @@ flutter build appbundle --release
 
 ---
 
-## 6. Quality Assurance & Verification
+## 7. Quality Assurance & Verification
 
-### 6.1 Static Analysis (`flutter analyze`)
+### 7.1 Static Analysis (`flutter analyze`)
 - Executed: `flutter analyze`
 - Result: **No issues found!** (0 errors, 0 warnings, 0 lints)
 
-### 6.2 Automated Test Suite (`flutter test`)
+### 7.2 Automated Test Suite (`flutter test`)
 - Executed: `flutter test`
 - Result: **All 202 tests passed!**
 - Included verification from `test/brand_assets_test.dart`:
@@ -149,13 +167,13 @@ flutter build appbundle --release
   - Verified light and dark splash mark resources.
   - Verified Play icon dimensions and corner pixel background color matching `#0F0F11`.
 
-### 6.3 Device Testing Note
+### 7.3 Device Testing Note
 - Command `flutter devices` detected: Windows desktop, Chrome web, and Edge web.
 - **No physical Android device or emulator was connected** during this build run. Therefore, direct on-device testing was not performed and is not falsely claimed. Visual layout and safe zones were verified programmatically via pixel-level mathematical calculations.
 
 ---
 
-## 7. Remaining Release Blockers
+## 8. Remaining Release Blockers
 
 There are **no build or signing blockers** for these artifacts. The APK/AAB are
 signed with the production upload keystore, package metadata is valid, and both
