@@ -5,6 +5,13 @@ review; declarations and account details marked HUMAN ACTION are still
 required.** Do not submit or publish without the owner's explicit
 authorization.
 
+> **Update (14 November 2026):** the app now routes to the sender-initiated
+> share flow: the sender selects files and shows a QR, the receiver scans and
+> approves. There is no manual address/port/code entry in the active UI. The
+> walkthrough and screenshot list below still describe the earlier receive-mode
+> flow and must be refreshed before any Play submission. See
+> `PRODUCTION_READINESS.md` and `WEBSITE_READINESS.md` for the current behavior.
+
 ## Store listing copy
 
 ### App name (30 characters maximum)

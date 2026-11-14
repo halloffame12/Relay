@@ -1,70 +1,55 @@
 import Link from "next/link";
 import Image from "next/image";
+import { asset } from "@/lib/asset";
 
 export default function Footer() {
   return (
     <footer className="site-footer">
-      <div className="container">
-        <div className="footer-top-cta">
-          <div className="cta-statement">
-            <span className="eyebrow-accent">[ GET STARTED ]</span>
-            <h3 className="display display-3">A simpler way to read and share.</h3>
-            <p>Download Relay for Android. No cloud account required to keep your documents close.</p>
-          </div>
-          <div className="cta-actions">
-            <Link className="btn btn-primary" href="/download">
-              Download Relay v0.9.0 <span className="arrow">→</span>
-            </Link>
-            <Link className="btn btn-secondary" href="/features">
-              Explore All Features
-            </Link>
-          </div>
-        </div>
-
+      <div className="wrap">
         <div className="footer-grid">
-          <div className="footer-brand-col">
-            <Link className="brand" href="/" aria-label="Relay Home">
-              <span className="brand-mark">
+          <div className="footer-brand">
+            <Link className="brand" href="/" aria-label="Relay home">
+              <span className="brand__mark">
                 <Image
-                  src="/assets/brand/relay-icon.png"
-                  alt="Relay Logo"
+                  src={asset("/assets/brand/icon-128.png")}
+                  alt=""
                   width={32}
                   height={32}
                 />
               </span>
-              <span className="brand-name">Relay</span>
+              <span className="brand__name">Relay</span>
             </Link>
-            <p className="footer-desc">
-              Offline-first document reader and local peer-to-peer file transfer application.
-              Engineered with an emphasis on calm typography, explicit receiver consent, and honest architecture.
+            <p>
+              An offline-first reader for PDF and EPUB, with QR-based file
+              sharing between Relay devices. Documents stay on the device.
+              Reading never needs a connection.
             </p>
-            <div className="footer-status-pill">
-              <span className="status-indicator"></span>
-              <span>Architecture: Offline-First • Drift SQL Core</span>
-            </div>
+            <p className="mono small" style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              Version 0.9.0 · Android 7.0+
+            </p>
           </div>
 
           <div className="footer-col">
-            <div className="footer-heading">Product</div>
-            <ul className="footer-links">
-              <li><Link href="/">Home & Overview</Link></li>
-              <li><Link href="/how-it-works">How It Works</Link></li>
-              <li><Link href="/features">Features & Specs</Link></li>
-              <li><Link href="/download">Download & Releases</Link></li>
+            <h3>Product</h3>
+            <ul>
+              <li><Link href="/">Overview</Link></li>
+              <li><Link href="/how-it-works">How it works</Link></li>
+              <li><Link href="/features">Features</Link></li>
+              <li><Link href="/download">Download</Link></li>
             </ul>
           </div>
 
           <div className="footer-col">
-            <div className="footer-heading">Open Technology</div>
-            <ul className="footer-links">
-              <li><Link href="/about">About & Philosophy</Link></li>
+            <h3>Project</h3>
+            <ul>
+              <li><Link href="/about">About</Link></li>
               <li>
                 <a
                   href="https://github.com/halloffame12/Relay"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  GitHub Repository ↗
+                  Source code ↗
                 </a>
               </li>
               <li>
@@ -73,7 +58,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Source Releases ↗
+                  Releases ↗
                 </a>
               </li>
               <li>
@@ -82,20 +67,24 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Issue Tracker ↗
+                  Issues ↗
                 </a>
               </li>
             </ul>
           </div>
 
           <div className="footer-col">
-            <div className="footer-heading">Governance & Privacy</div>
-            <ul className="footer-links">
-              <li><Link href="/privacy">Privacy Policy</Link></li>
-              <li><Link href="/terms">Terms of Use</Link></li>
+            <h3>Legal</h3>
+            <ul>
+              <li><Link href="/privacy">Privacy</Link></li>
+              <li><Link href="/terms">Terms</Link></li>
               <li>
-                <a href="mailto:support@relay-reader.org">
-                  Developer Contact
+                <a
+                  href="https://github.com/halloffame12/Relay/issues/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Contact ↗
                 </a>
               </li>
             </ul>
@@ -103,15 +92,12 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <div className="footer-copy mono">
-            © 2026 Relay. Local by default. Zero tracking.
-          </div>
-          <div className="footer-tech-specs mono">
-            <span>SHA-256 Verified Transfers</span>
-            <span>•</span>
-            <span>Android Min SDK 24</span>
-            <span>•</span>
-            <span>Flutter & Drift</span>
+          <span>© 2026 Relay. Local by default.</span>
+          <div className="footer-bottom__specs">
+            <span>Flutter</span>
+            <span>Android API 24+</span>
+            <span>SHA-256 verified</span>
+            <span>No analytics</span>
           </div>
         </div>
       </div>

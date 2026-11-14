@@ -1,13 +1,19 @@
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
-import Image from "next/image";
-import Link from "next/link";
 
 export const metadata = {
-  title: "About — The Thinking Behind Relay",
+  title: "About",
   description:
-    "Why we built Relay: A calm, offline-first reading library and honest peer-to-peer file sharing without cloud intermediary accounts.",
+    "Why Relay exists: one app for reading without losing your place, and sharing a document without network setup.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Relay",
+    description:
+      "Two frustrations, one app: reading that remembers you, sharing that takes a scan.",
+    url: "/about",
+  },
 };
 
 export default function About() {
@@ -15,150 +21,234 @@ export default function About() {
     <>
       <Header />
       <main id="main-content">
-        <section className="section">
-          <div className="container">
-            <Reveal>
-              <div className="philosophy-grid grid-2 asym">
-                <div>
-                  <div className="eyebrow">[ MANIFESTO ]</div>
-                  <h1 className="display display-2" style={{ margin: "14px 0 24px" }}>
-                    Software built for calm reading and quiet transfers.
-                  </h1>
-                  <blockquote className="philosophy-quote-lg about-quote">
-                    "Relay is built around a simple idea: your documents should be easy to read, keep, and share."
-                  </blockquote>
-                </div>
-
-                <div className="prose-editorial">
-                  <p>
-                    Modern software has complicated two very simple human acts: reading a book and sharing a document with someone sitting across the table.
-                  </p>
-                  <p>
-                    Today, reading an electronic paper often requires cloud accounts, online license checks, reading telemetry, and apps laden with social feeds. Meanwhile, sharing a 15 MB PDF often requires uploading it to a cloud drive, creating a shareable web link, emailing that link, and waiting for the other person to download it through a web browser.
-                  </p>
-                  <p>
-                    Relay takes a different path. It is designed as an independent, local-first utility.
-                    When you import a document into Relay, it stays on your phone. When you share a document,
-                    bytes stream directly between the two physical devices. There is no cloud holding your files,
-                    no third party inspecting your reading habits, and no subscription paywall.
-                  </p>
-                  <p>
-                    We built Relay because tools that handle our reading lives should feel like physical paper:
-                    calm, dependable, private, and durable.
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Principles Section */}
-        <section className="section" style={{ backgroundColor: "var(--bg-soft)", borderTop: "1px solid var(--line)" }}>
-          <div className="container">
-            <Reveal>
-              <div className="section-head">
-                <div className="eyebrow">[ CORE TENETS ]</div>
-                <h2 className="display display-2">Our design principles.</h2>
+        <section className="page-head">
+          <div className="wrap">
+            <div className="page-head__meta">
+              <span>About</span>
+              <span>Independent / public source</span>
+            </div>
+            <div className="page-head__grid">
+              <div>
+                <h1 className="display display-1">
+                  Two frustrations. One app.
+                </h1>
                 <p className="lede">
-                  The engineering boundaries that guide every line of code we write for Relay.
+                  Relay began with a lost page and a needlessly complicated
+                  transfer. It is an attempt to make both experiences boring in
+                  the best way.
                 </p>
               </div>
-            </Reveal>
-
-            <div className="principles-grid principles">
-              <div className="principle-item principle">
-                <div className="principle-idx idx">01</div>
-                <div>
-                  <h4>Local First</h4>
-                  <p>
-                    Your documents, annotations, reading progress, and transfer records belong exclusively to your device storage. Reading never depends on external servers or active internet connections.
-                  </p>
-                </div>
-              </div>
-
-              <div className="principle-item principle">
-                <div className="principle-idx idx">02</div>
-                <div>
-                  <h4>Explicit Receiver Consent</h4>
-                  <p>
-                    No device should ever receive unsolicited files. Relay requires the receiver to consciously review the document name, format, and declared byte size before a single byte touches the disk.
-                  </p>
-                </div>
-              </div>
-
-              <div className="principle-item principle">
-                <div className="principle-idx idx">03</div>
-                <div>
-                  <h4>Cryptographic Verification</h4>
-                  <p>
-                    Every transfer is validated against a SHA-256 digest. Corrupted streams or truncated files are rejected immediately and purged without leaving broken remnants in your library.
-                  </p>
-                </div>
-              </div>
-
-              <div className="principle-item principle">
-                <div className="principle-idx idx">04</div>
-                <div>
-                  <h4>Honest Product Communication</h4>
-                  <p>
-                    We refuse to inflate capabilities. We do not claim end-to-end encryption for unencrypted LAN sockets. We clearly label cross-network relaying as requiring signaling infrastructure. We tell the truth about what the code does.
-                  </p>
-                </div>
+              <div className="page-head__aside">
+                <p className="small muted">
+                  An independent Android project, built in the open. No company
+                  behind it, no growth metrics in the copy, and no pretend
+                  testimonials.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* The Brand Mark */}
         <section className="section">
-          <div className="container">
-            <div className="privacy-grid grid-2 asym" style={{ alignItems: "center" }}>
-              <div>
-                <div className="eyebrow">[ BRAND IDENTITY ]</div>
-                <h2 className="display display-3" style={{ margin: "12px 0 16px" }}>
-                  The Relay Brand Mark
-                </h2>
-                <p style={{ color: "var(--ink-secondary)", fontSize: 16 }}>
-                  The Relay icon represents the tactile intersection of open pages and directed signal transmission.
-                  Rendered in deep charcoal, warm terracotta, and acid lime, it embodies the spirit of independent,
-                  well-crafted digital tools that prioritize substance over superficiality.
+          <div className="wrap">
+            <div className="about-story">
+              <aside className="about-story__aside">
+                <p className="eyebrow">The story</p>
+                <p className="kicker" style={{ marginTop: 16 }}>
+                  Read offline.<br />
+                  Continue where you stopped.<br />
+                  Share with a scan.
                 </p>
-                <div className="row" style={{ marginTop: 24 }}>
-                  <Link className="btn btn-primary" href="/download">
-                    Download Relay <span className="arrow">→</span>
-                  </Link>
+                <div className="hero-actions" style={{ marginTop: 26 }}>
                   <a
-                    className="btn btn-secondary"
+                    className="btn btn--ghost btn--small"
                     href="https://github.com/halloffame12/Relay"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    GitHub Source Code ↗
+                    GitHub <span className="arrow" aria-hidden="true">↗</span>
                   </a>
                 </div>
-              </div>
+              </aside>
 
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <div
-                  style={{
-                    width: 200,
-                    height: 200,
-                    borderRadius: 32,
-                    overflow: "hidden",
-                    boxShadow: "var(--shadow-lg)",
-                    border: "2px solid var(--line)",
-                  }}
-                >
-                  <Image
-                    src="/assets/brand/relay-icon.png"
-                    alt="Official Relay Brand Icon"
-                    width={200}
-                    height={200}
-                    priority
-                  />
+              <Reveal className="about-story__body">
+                <p className="lead">
+                  Relay started with two frustrations: losing your place while
+                  reading, and dealing with unnecessary steps when sharing
+                  files.
+                </p>
+                <p>
+                  The first is small but constant. You close a PDF to answer
+                  something, come back, and the page is gone. The library knows
+                  the file exists, but not where you were in it. The second is
+                  louder. You want to send one document to the phone in front of
+                  you, and suddenly you are reading out an IP address, hunting
+                  for a port, or typing a six-digit code that expires while you
+                  find it.
+                </p>
+                <p>
+                  The idea was to build one application that makes both
+                  experiences simpler. A library that keeps your position. A
+                  transfer that starts with a scan and asks the receiver before
+                  it writes anything.
+                </p>
+
+                <blockquote className="pull">
+                  Read offline. Continue where you stopped. Share with a scan.
+                </blockquote>
+
+                <p>
+                  That sentence set the constraints. The library had to work
+                  without a connection, so reading could not depend on a server.
+                  Sharing had to work without an account, so the handshake could
+                  not rely on a cloud identity. And the receiver had to stay in
+                  control, so the file list is shown and approved before the
+                  first byte is written.
+                </p>
+                <p>
+                  The rest is engineering discipline. Stream files in bounded
+                  chunks instead of loading them into memory. Hash the bytes and
+                  compare them. Refuse to overwrite a document that already
+                  exists. Clean up after a cancelled transfer. Say which network
+                  path was used, rather than implying every network behaves the
+                  same.
+                </p>
+                <p>
+                  Relay is still evolving. The published build handles
+                  same-network transfers; the cross-network path is written but
+                  needs a signaling endpoint. Features are added only when they
+                  work end to end, and the website is meant to describe the app
+                  that exists, not the one that might.
+                </p>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section className="section section--soft">
+          <div className="wrap">
+            <Reveal>
+              <div className="section-head section-head--stack">
+                <div>
+                  <p className="eyebrow">Principles</p>
+                  <h2 className="display display-2">
+                    Rules the product is held to.
+                  </h2>
                 </div>
               </div>
+            </Reveal>
+
+            <div className="principle-grid">
+              <div className="principle">
+                <span className="principle__num">01</span>
+                <h3>Local by default</h3>
+                <p>
+                  The library, reading position and bookmarks live on the
+                  device. Reading is not a network feature.
+                </p>
+              </div>
+              <div className="principle">
+                <span className="principle__num">02</span>
+                <h3>Consent before bytes</h3>
+                <p>
+                  The receiver sees the manifest and approves it. No file is
+                  written automatically, and nothing is auto-accepted.
+                </p>
+              </div>
+              <div className="principle">
+                <span className="principle__num">03</span>
+                <h3>Proof over promises</h3>
+                <p>
+                  SHA-256 and byte counts are checked before import. The code is
+                  public, so the claim can be audited.
+                </p>
+              </div>
+              <div className="principle">
+                <span className="principle__num">04</span>
+                <h3>Honest limits</h3>
+                <p>
+                  When a capability needs configuration or a network that
+                  permits it, the interface says so instead of pretending.
+                </p>
+              </div>
             </div>
+          </div>
+        </section>
+
+        <section className="section">
+          <div className="wrap">
+            <div className="split split--start">
+              <Reveal>
+                <p className="eyebrow">What Relay is not</p>
+                <h2 className="display display-2" style={{ marginTop: 16 }}>
+                  A small tool, on purpose.
+                </h2>
+                <p className="lede" style={{ marginTop: 20 }}>
+                  Not a cloud drive. Not a social reading network. Not a
+                  subscription. The scope is deliberately narrow, because the
+                  two core experiences are the point.
+                </p>
+              </Reveal>
+              <Reveal delay={80}>
+                <div className="ledger">
+                  <div className="ledger__row" style={{ gridTemplateColumns: "40px 1fr" }}>
+                    <span className="ledger__num">—</span>
+                    <span className="ledger__v">No document uploads to cloud storage.</span>
+                  </div>
+                  <div className="ledger__row" style={{ gridTemplateColumns: "40px 1fr" }}>
+                    <span className="ledger__num">—</span>
+                    <span className="ledger__v">No accounts, profiles or reading social graph.</span>
+                  </div>
+                  <div className="ledger__row" style={{ gridTemplateColumns: "40px 1fr" }}>
+                    <span className="ledger__num">—</span>
+                    <span className="ledger__v">No ads, trackers or behavioral analytics.</span>
+                  </div>
+                  <div className="ledger__row" style={{ gridTemplateColumns: "40px 1fr" }}>
+                    <span className="ledger__num">—</span>
+                    <span className="ledger__v">No claim that every network supports a direct connection.</span>
+                  </div>
+                </div>
+                <p className="small muted" style={{ marginTop: 18 }}>
+                  Found something that does not match these statements?{" "}
+                  <a
+                    className="text-link"
+                    href="https://github.com/halloffame12/Relay/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open an issue
+                  </a>
+                  .
+                </p>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section className="section section--ink">
+          <div className="wrap">
+            <Reveal>
+              <div className="final__grid">
+                <div>
+                  <p className="eyebrow">Continue</p>
+                  <h2 className="display display-2" style={{ marginTop: 16 }}>
+                    Read the flow, then try it.
+                  </h2>
+                  <p className="final__copy">
+                    The implementation is public, the release is downloadable,
+                    and the limitations are written down.
+                  </p>
+                  <div className="final__actions">
+                    <Link className="btn btn--primary" href="/download">
+                      Get Relay <span className="arrow" aria-hidden="true">→</span>
+                    </Link>
+                    <Link className="btn btn--ghost" href="/how-it-works">
+                      How it works
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </section>
       </main>

@@ -1,127 +1,335 @@
-# Relay Official Website — Production Readiness & Architecture Audit
+# Relay Official Website — Readiness & Design Record
 
-**Status:** Production Ready  
-**Date:** November 13, 2026  
-**Repository:** `C:\startup\Relay`  
-**Website Location:** `C:\startup\Relay\website`  
-**Release Target:** Relay v0.9.0 (Android)  
-
----
-
-## 1. Executive Summary
-
-The official website for **Relay** has been completely designed, developed, and verified as an editorial, production-ready web platform. Moving far away from generic, interchangeable SaaS landing page templates, the site embraces an editorial, neo-brutalist aesthetic inspired by high-end independent software studios and literary publications.
-
-The visual direction centers around the official Relay brand asset (`store/brand/relay-icon.png`), utilizing tactile paper tones (`#F5F1E8`), deep charcoal typography (`#0E0F12`), warm terracotta brand accents (`#D96543`), acid lime accents (`#C4F042`), and sage hues (`#D6E0CF`), paired with Fraunces serif display typography, crisp Inter body text, and monospaced JetBrains Mono for cryptographic and networking metadata.
-
-All product claims are strictly anchored in the actual Flutter codebase (`lib/`), Drift database schemas, and the Node.js signaling reference service (`infra/signaling/`).
+**Status:** Built and locally verified. Not yet deployed.
+**Last updated:** 14 November 2026
+**Website:** `C:\startup\Relay\website` (Next.js 15 App Router, React 19)
+**App release referenced:** Relay 0.9.0 (Android)
+**Production URL:** `https://sumitchauhan.me/Relay` (via `NEXT_PUBLIC_SITE_URL`), with an optional GitHub Pages build
 
 ---
 
-## 2. Pages Implemented & Validated
+## 1. What the site is for
 
-| Route | Title | Key Architectural Sections |
-| :--- | :--- | :--- |
-| `/` | **Relay — Your library. Your files. Your way.** | • Asymmetric editorial hero with dual device composition (`02-library-imported.png` & `06-receive-qr.png`).<br>• Product introduction manifesto block.<br>• 4 core capabilities: Read anywhere (PDF/EPUB), Share with a scan, Across networks (honest status), Built around your files.<br>• **Interactive Protocol Simulator** (5-state live demonstration).<br>• 3-step visual workflow (01 Select, 02 Scan, 03 Transfer).<br>• Engineering principles & Privacy manifesto. |
-| `/how-it-works` | **How It Works — Relay File Transfer Protocol** | • 5-beat lifecycle with real screenshots: Offer Initialization (`06-receive-qr.png`), Handshake & Selection (`sender-selected.png`), Consent Gate (`receiver-approve.png`), Bounded Streaming (`receiver-incoming.png`), Verification & Commit (`receiver-done.png`).<br>• LAN Direct vs Cross-Network WebRTC comparative topology.<br>• Failure recovery & zero partial file guarantees. |
-| `/features` | **Features & Specifications — Relay** | • Comprehensive feature matrix based strictly on implementation:<br>1. PDF Reading Engine (continuous rendering, position restore, bookmarks)<br>2. EPUB Reader with Bounded Media (sanitized HTML, 8 MiB image cap, no SVG/remote leaks)<br>3. Local-First Offline Library (Drift SQLite, deduplication, SAF system picker)<br>4. QR Pairing Protocol v2 (10-min ephemeral token, binary validation, camera boundary)<br>5. Cross-Network Peer Transfer (LAN socket, WebRTC data channels, signaling client)<br>6. Integrity Verification & Consent (blocking approval modal, streaming SHA-256)<br>7. Organization & Search (title/author search, format filtering, status badges) |
-| `/download` | **Download Relay for Android — v0.9.0 Release** | • Official v0.9.0 Stable Preview release card.<br>• Direct links to GitHub Releases and open source repository.<br>• Honest Google Play Store status (in review / pending Data Safety approval, no fake badges).<br>• Platform specifications (Min SDK 24 / Android 7.0+, Target SDK 36, v2 signature).<br>• 1-click copyable cryptographic checksums (Release APK SHA-256, AAB SHA-256, Upload Certificate).<br>• Terminal build-from-source command (`flutter build apk --release --no-tree-shake-icons`).<br>• Sideloading installation guide & complete v0.9.0 release notes. |
-| `/about` | **About — The Thinking Behind Relay** | • Founding manifesto: "Your documents should be easy to read, keep, and share."<br>• Critique of modern bloated document tools and cloud lock-in.<br>• 4 core tenets: Local First, Explicit Consent, Cryptographic Verification, Honest Communication.<br>• The Relay brand mark story & design philosophy. |
-| `/privacy` | **Privacy Policy** | • Precise description of local storage architecture (Drift SQLite).<br>• Complete network socket transparency (LAN direct raw TCP vs WebRTC DTLS data channels).<br>• Strict camera and storage permission boundaries.<br>• Zero tracking SDKs, cookies, or remote analytics commitment. |
-| `/terms` | **Terms of Use** | • Open source licensing, permitted use, warranty disclaimers, and version terms. |
-| `/sitemap.xml` | Generated XML Sitemap | Dynamic static sitemap covering all canonical site routes. |
-| `/robots.txt` | Generated Robots Directive | Clean search engine indexing configuration. |
+Relay does two things, and the site is built around exactly those two things:
+
+1. **Reading continuity** — an offline PDF/EPUB library that reopens where you stopped.
+2. **Sharing with a scan** — a sender shows a QR code, a receiver scans it, reviews the file list, approves, and receives a verified copy.
+
+The homepage has to make both obvious within five seconds, without a generic SaaS hero, invented metrics, fake testimonials, or a Play Store badge for a listing that does not exist. The visual language is editorial and neo-brutalist: warm paper, deep charcoal, lime drawn from the official icon, asymmetric layouts, hairline rules, oversized Fraunces display type, and monospace for technical facts.
+
+The site never asks the visitor to type an IP address, port, hostname, or pairing code. It does not claim cross-network transfer works in the published build. The published 0.9.0 APK was compiled without a signaling endpoint, so it transfers on the same network only; the site says so in the sharing section, on `/how-it-works`, and on `/features`.
 
 ---
 
-## 3. Component Architecture
+## 2. Routes
 
-- `src/components/Header.jsx`: Sticky blur navigation with brand mark, responsive navigation links, theme toggle with persistent storage and system preference listener, and an animated mobile drawer.
-- `src/components/Footer.jsx`: Editorial footer with top CTA band, product links, open source repository links, governance links, and technical specs summary.
-- `src/components/DeviceFrame.jsx`: High-fidelity Android device mockup container with realistic bezels, speakers, display screens, and metadata captions for framing authentic screenshots.
-- `src/components/TransferDemo.jsx`: Fully interactive 5-phase protocol simulator enabling users to test document selection, QR code generation, receiver approval modals, real-time streamed byte meters, and SHA-256 verification.
-- `src/components/CopySnippet.jsx`: One-click clipboard copy component with visual feedback for terminal commands and cryptographic hashes.
-- `src/components/Reveal.jsx`: Performant scroll entrance reveals with strict `prefers-reduced-motion` compliance.
+All routes are statically exported: 7 public HTML routes, a 404 page, and generated `robots.txt` and `sitemap.xml`.
 
----
+| Route | Purpose | Main content |
+| --- | --- | --- |
+| `/` | Overview | Editorial hero with a real reader screenshot and an illustrative QR phone; reading-continuity section; sharing section with an interactive five-step flow; cross-network explanation and route diagram; verification ledger; no-accounts section; public-source band; final CTA. |
+| `/how-it-works` | Explain both workflows | Tabbed “Reading” / “Sharing” panels with phone mockups and captions; connection-path cards (LAN, direct WebRTC, TURN relay); “never asks for” ledger; limits and failure behavior. |
+| `/features` | Capability inventory | Reading and sharing feature groups, each tied to what the app actually does; “Known limits” section; source link. |
+| `/download` | Get the app | Version 0.9.0 card; direct GitHub Release links for APK and AAB; SHA-256 hashes with copy buttons; verification commands; compatibility; install and build notes; release notes; source links. |
+| `/about` | Product thinking | Why Relay exists, its principles, what it deliberately is not, and how to continue. |
+| `/privacy` | Privacy policy | Local storage, no account, camera scope, file access, transfer metadata, no analytics/ads, permission summary. |
+| `/terms` | Terms of use | What Relay is, user responsibility, network paths, source licensing, warranty and liability, contact. |
+| `not-found` | 404 | Editorial “page not found” page with links back into the site. |
 
-## 4. Design System & Design Tokens
-
-### Color Palette (Anchored in `store/brand/relay-icon.png`)
-- **Light Theme (Tactile Editorial Paper):**
-  - Base: `#F5F1E8`
-  - Soft Background: `#EDE6D8`
-  - Surface: `#FAF7F0`
-  - Deep Ink: `#0E0F12`
-  - Secondary Ink: `#2E302B`
-  - Muted Ink: `#5C6057`
-  - Hairlines: `#D5CEBE`
-  - Brand Terracotta: `#D96543` (Hover: `#BF5333`)
-  - Brand Lime: `#C4F042`
-  - Brand Sage: `#D6E0CF`
-- **Dark Theme (Obsidian & Mineral):**
-  - Base: `#0D0E11`
-  - Soft Background: `#15171B`
-  - Surface: `#1B1E24`
-  - Elevated: `#23272F`
-  - High-Contrast Text: `#F5F1E8`
-  - Secondary Text: `#D7D2C5`
-  - Dark Hairlines: `#292D35`
-  - Luminous Terracotta: `#E57351`
-  - Acid Lime: `#C4F042`
-
-### Typography Hierarchy
-- **Headings & Editorial Quotes:** *Fraunces* (Optical size 9–144, weights 300–700).
-- **Body & Interface:** *Inter* (Weights 300–700, OpenType feature settings `cv02`, `cv03`, `cv04`, `cv11`).
-- **Cryptographic Hashes & System Metrics:** *JetBrains Mono* (Tabular numerals, zero-slash).
+There is no login, dashboard, cart, newsletter capture, live chat, or pricing page. Nothing on the site collects visitor data.
 
 ---
 
-## 5. Responsive Verification Matrix
+## 3. Page structure
 
-Tested and optimized for complete responsiveness across device viewports:
+### Homepage narrative
 
-| Viewport | Device Class | Status | Layout Behavior |
-| :--- | :--- | :--- | :--- |
-| **320px** | iPhone SE (Compact) | Passed | Fluid typography clamps cleanly; zero horizontal overflow; full-width stacked cards. |
-| **360px** | Small Android | Passed | Navigation collapses to clean mobile toggle; hero mockups scale proportionally. |
-| **390px** | Standard Modern Smartphone | Passed | Ideal reading widths; mobile drawer functions smoothly; touch targets ≥ 44px. |
-| **430px** | Large Smartphone (Pro Max) | Passed | Spacious editorial padding; simulator buttons wrap elegantly. |
-| **768px** | iPad / Tablet Portrait | Passed | Grid switches to 2-column layout; device mockups display side-by-side with text. |
-| **1024px** | iPad Pro / Small Laptop | Passed | Desktop navigation activates; asymmetric hero composition renders in full detail. |
-| **1280px** | Desktop | Passed | Canonical container max-width (`1280px`) with balanced editorial margins. |
-| **1440px** | Standard Desktop Display | Passed | High contrast hairlines and balanced whitespace. |
-| **1920px** | Wide / Ultrawide Display | Passed | Centered layout; typography does not overscale; visual hierarchy remains disciplined. |
+- **Hero** — “Read without losing your place. Share without the setup.” Two phones: a real reader screenshot and a clearly decorative QR mock labelled `Sharing`. A four-item spec strip states read/resume/share/verify.
+- **01 / Reading continuity** — resumes, recent documents, bookmarks, search, offline library. Real screenshots of the library and reader sit in device frames; the resume strip is a static caption bar, not a fake notification.
+- **02 / Sharing with a scan** — dark section. States the sender/receiver roles, the five-step flow, batch limits (20 files or 200 MiB), and the fact that nothing is written before approval. The phone screens here are explicitly illustrative app UI built in HTML/CSS.
+- **03 / Across networks** — explains LAN first, direct WebRTC second, TURN relay as a fallback. States honestly that the published build is same-network only and why. The route diagram is labelled as illustrative, not a screenshot.
+- **04 / Built with care** — a verification ledger: byte count, SHA-256, duplicate detection, explicit approval, interrupted-transfer cleanup.
+- **05 / No accounts** — offline-first library, no profile, camera used only for scanning, known limits.
+- **06 / Built in the open** — lime band linking to the public source repository. No invented contributor counts.
+- **Final CTA** — download and source links over the official mark.
 
----
+### Interior pages
 
-## 6. Accessibility (a11y) & SEO Compliance
-
-- **Accessible Landmarks:** `<header>`, `<main id="main-content">`, `<nav>`, `<section>`, `<figure>`, `<figcaption>`, `<footer>`.
-- **Skip Navigation:** Keyboard-accessible `.skip-link` anchored to `#main-content`.
-- **Keyboard Navigation:** All interactive buttons, simulator steps, copy actions, and theme toggles are fully navigable via `Tab` and `Enter`/`Space` with high-visibility focus rings (`:focus-visible`).
-- **Reduced Motion:** Comprehensive `@media (prefers-reduced-motion: reduce)` rules disable all CSS animations, transitions, laser sweeps, and scroll transforms.
-- **Open Graph & Twitter Cards:** Full metadata tags configured in `src/app/layout.jsx` linking to `/assets/brand/icon-512.png`.
-- **Favicons & App Icons:** Linked to official brand assets in `public/assets/brand/`.
-- **Robots & Sitemap:** `robots.txt` and `sitemap.xml` are statically rendered during `next build`.
+- `/how-it-works` uses a real tab control (Reading / Sharing), then connection paths and a “never asks for” ledger. On mobile the tabs remain side by side and the panels stack.
+- `/download` is a document, not a marketing page: release metadata, hash blocks, terminal verification commands, install caveats, and release notes.
+- `/features` separates what ships from “Known limits,” including same-network-only behavior for this build and the absence of resume-after-drop.
 
 ---
 
-## 7. Verification Results
+## 4. Component architecture
 
-```bash
+| File | Role |
+| --- | --- |
+| `src/app/layout.jsx` | Metadata, canonical URL, Open Graph/Twitter, icons, theme-color, JSON-LD `SoftwareApplication`, pre-paint theme script. |
+| `src/app/page.jsx` | Homepage sections and hero composition. |
+| `src/components/Header.jsx` | Sticky header, active-route state, theme toggle (`localStorage` key `relay-theme`), mobile drawer with Escape-to-close and body scroll lock. |
+| `src/components/Footer.jsx` | Sitemap-style footer, product/project/legal columns, build facts. |
+| `src/components/Reveal.jsx` | IntersectionObserver entrance reveal; disabled under `prefers-reduced-motion`. |
+| `src/components/Phone.jsx` | Device frame with caption slot and CSS bevel. |
+| `src/components/ShareScreen.jsx` | Illustrative sender/receiver screens: library selection, QR display, scanner, approval, progress, completion. Marked `aria-hidden` so decorative mock headings stay out of the document outline. |
+| `src/components/FlowSteps.jsx` | Interactive five-step sharing demo with selectable steps and live preview. |
+| `src/components/NetworkDiagram.jsx` | Illustrative LAN / WebRTC / relay route diagram. |
+| `src/components/WorkflowTabs.jsx` | Reading/Sharing tabs with `aria-selected`, `aria-controls`, and correct `hidden` panels. |
+| `src/components/QrMark.jsx` | Decorative generated QR-style mark (explicitly not a scannable code). |
+| `src/components/CopyButton.jsx` | Clipboard copy with visible confirmation for hashes and commands. |
+| `src/lib/asset.js` | Prefixes public asset URLs with the optional `BASE_PATH` so subpath builds resolve images and icons correctly. |
+
+Client components are limited to the header, tabs, flow, copy buttons, and reveal wrapper. Everything else is static HTML.
+
+---
+
+## 5. Design system
+
+Tokens live at the top of `src/app/globals.css`; the theme is switched with `data-theme` on `<html>`.
+
+**Light**
+
+| Token | Value |
+| --- | --- |
+| `--bg` | `#f4f0e6` |
+| `--bg-soft` | `#ece7d9` |
+| `--surface` | `#faf7f0` |
+| `--ink` | `#0e0e10` |
+| `--ink-soft` | `#2c2b2e` |
+| `--muted` | `#6b665b` |
+| `--line` | `#d9d1c0` |
+| `--cream` | `#f5eee5` |
+| `--lime` | `#c5e74d` |
+| `--accent-deep` | `#4b5a12` |
+| `--accent-soft` | `#e8f3bd` |
+
+**Dark**
+
+| Token | Value |
+| --- | --- |
+| `--bg` | `#0e0e10` |
+| `--bg-soft` | `#141416` |
+| `--surface` | `#17171a` |
+| `--ink` | `#f5eee5` |
+| `--muted` | `#a39d90` |
+| `--line` | `#2c2c30` |
+| `--lime` | `#c5e74d` |
+| `--accent-deep` | `#c5e74d` |
+
+Typography:
+
+- **Display:** Fraunces (variable optical size). Used for h1/h2 and editorial pull quotes.
+- **Body/UI:** Inter.
+- **Technical:** JetBrains Mono for hashes, batch sizes, route labels, and numbered captions.
+
+Layout rules: a `1280px` max content width, asymmetric 12/7-ish splits, hairline rules, square corners, and no drop-shadow-heavy cards. The lime band and ink sections break the page rhythm instead of adding another white card.
+
+Contrast: `--muted` on light paper is ≈5.0:1; the dark muted token on `#0e0e10` is ≈7.1:1. Focus outlines use `--focus` (`#4b5a12` light, lime dark) with `:focus-visible`.
+
+---
+
+## 6. Honest capability matrix
+
+| Claim on the site | Reality in the published 0.9.0 APK | Where it is stated |
+| --- | --- | --- |
+| Offline PDF/EPUB reading, position restore, bookmarks, search | Implemented and shipped | Home, features |
+| Sender shows a QR, receiver scans and approves | Implemented and shipped | Home, how-it-works |
+| No IP/port/hostname/code entry in the normal flow | True | Home, how-it-works, features |
+| Single-use QR, five-minute lifetime, no long-lived secret | Implemented (`shareInvitationTtl = 5 min`, invitation v2) | Home, how-it-works, features |
+| 20 files / 200 MiB per batch | Implemented (`shareMaxFilesPerBatch`, `shareMaxBatchBytes`) | Sharing section, features |
+| SHA-256 verification before import | Implemented | Home ledger, features, download |
+| Same-network transfer in this build | True; APK compiled without `RELAY_SIGNALING_URL` | Sharing section, how-it-works, features |
+| Cross-network via WebRTC/TURN | Implemented in source, not configured in the published APK | Explained as available when a signaling/TURN deployment is configured |
+| Resume after a dropped connection | Not implemented | `/features` known limits |
+| Google Play listing | Does not exist | `/download` links only to GitHub Releases |
+
+No page claims end-to-end encryption for the local TCP path. The privacy page states that WebRTC paths are DTLS-encrypted while the LAN path uses Relay’s own TCP protocol.
+
+---
+
+## 7. Responsive verification
+
+Automated overflow audit: Puppeteer + Chrome headless, every public route plus `/missing-page`, at **320, 360, 390, 430, 768, 1024, 1280, 1440, 1920 px**, in both light and dark themes, with reduced motion forced. The audit walks every element and flags any box whose right edge exceeds the viewport, plus any document wider than the viewport.
+
+**Result: `[]` — no offenders at any tested width or theme.**
+
+Manual inspection was also done on full-page captures at 1440 light/dark, 390 light/dark, 320, and 768, and on cropped sections for the hero, reading, sharing, networks, care, no-accounts, final CTA, `/how-it-works` (both tabs), `/features`, `/download`, `/about`, the 404 page, and the mobile drawer.
+
+Specific responsive behavior:
+
+- Below 860 px the hero drops the dashed baseline and stacks copy over phones.
+- Phone widths use `clamp()` with a container query unit inside the mocks, so the illustrative UI keeps its proportions at 320 px without clipping.
+- The sharing/reading panels become one column; the tabs stay usable.
+- The header collapses to a drawer at the mobile breakpoint; the drawer closes on route change, Escape, and backdrop click, and locks body scroll while open.
+- Download hash blocks wrap instead of overflowing; long SHA-256 strings break inside the block.
+- No fixed-width element exceeds the viewport at 320 px.
+
+---
+
+## 8. Accessibility checks
+
+Automated per-route checks returned:
+
+- Exactly **one `<h1>`** on every route.
+- One `<main id="main-content">` on every page.
+- **Zero images without `alt`** (decorative images use `alt=""`).
+- **Zero links without an accessible name.**
+
+Other measures:
+
+- A skip link targets `#main-content`.
+- The mobile menu button exposes `aria-expanded` and `aria-controls`; the drawer is removed from the DOM when closed.
+- Tabs use `role="tab"`, `aria-selected`, `aria-controls`, and real `hidden` panels; both the Reading and Sharing panels exist but only one is displayed.
+- The flow steps are buttons with visible `aria-current`/active state and text labels.
+- Decorative mock screens are `aria-hidden="true"`, so their internal headings do not pollute the outline.
+- `prefers-reduced-motion: reduce` disables animation and smooth scrolling.
+- Color is never the only state signal; active states also change weight, border, or text.
+- Focus rings are visible against both themes.
+- The theme toggle is a real button with an accessible label and persisted preference.
+
+---
+
+## 9. Interaction verification
+
+Run against the exported build (`http://localhost:4173`):
+
+| Check | Result |
+| --- | --- |
+| `/how-it-works` initial state | Reading panel visible, Sharing panel `display: none` |
+| Click “Sharing” tab | Reading `none`, Sharing `grid`, `aria-selected="true"` |
+| Click flow step 3 | Active step becomes “Scan from another device” and preview updates |
+| Theme toggle | `dark → light`, persisted as `relay-theme = light` after reload |
+| Mobile drawer open | `aria-expanded="true"`, `body.style.overflow = hidden` |
+| Escape closes drawer | Drawer removed, `aria-expanded="false"`, body scroll restored |
+| 404 page | `/404.html` renders “Page not found — Relay” at 1440 and 390 |
+
+---
+
+## 10. Assets and brand provenance
+
+The only official brand source is `store/brand/relay-icon.png`. Nothing on the site invents a logo.
+
+| Asset | Role |
+| --- | --- |
+| `public/assets/brand/relay-icon.png` | Source of truth, copied from `store/brand/relay-icon.png` |
+| `icon-128.png` | Header/footer mark |
+| `icon-512.png` | Apple icon, final CTA mark |
+| `icon-1024.png` | High-resolution use |
+| `og.png` | 1200×630 Open Graph card built from the official feature graphic |
+| `favicon.ico` | 16/32/48 ICO generated from the official icon |
+| `public/assets/screenshots/01-library-empty.png` | Real Android library screenshot |
+| `02-library-imported.png` | Real library with documents |
+| `03-document-details.png` | Real document details screen |
+| `04-reader.png` | Real reader screen |
+
+Derived assets are generated by:
+
+- `tool/generate_brand_assets.py` — Android/iOS/web/store derivatives and `store/brand-assets.json` provenance.
+- `tool/make_web_og.py` — Open Graph image.
+- `tool/make_web_favicon.py` — ICO favicon.
+
+Stale screenshots that showed the earlier receive-QR/manual-connection flow were deleted from `website/public/assets/screenshots`. They remain only under `store/screenshots/` as historical artifacts and are not referenced by the site.
+
+Sharing visuals are HTML/CSS mockups, not screenshots, and are labelled as illustrative. They are used because the published build presents the same sender/receiver flow, but a fresh capture of the new share screens would require two connected devices, and no devices were available via adb during this pass.
+
+---
+
+## 11. Build and static export
+
+```powershell
 cd C:\startup\Relay\website
+npm install
 npm run build
 ```
-- **Build Status:** Compiled successfully in 1.7s.
-- **Static Export:** 12/12 static HTML pages rendered to `C:\startup\Relay\website\out`.
-- **Local Server Test:** All canonical routes (`/`, `/how-it-works/`, `/features/`, `/download/`, `/about/`, `/privacy/`, `/terms/`, `/sitemap.xml`, `/robots.txt`) returned `200 OK`.
-- **Asset Integrity:** All images linked to authentic application screenshots in `public/assets/screenshots/` and official icon in `public/assets/brand/relay-icon.png`.
+
+- Next.js 15.5.x, React 19, JavaScript only.
+- `output: "export"` with `images.unoptimized: true`.
+- `trailingSlash: false`.
+- Output: `website/out/`.
+- Build result: **7 routes plus the 404 page, `robots.txt`, and `sitemap.xml` generated without errors or type/lint blockers.**
+- `BASE_PATH` is optional. Leave it empty for a root deployment (Vercel); set `BASE_PATH=/Relay` only for the GitHub Pages project build. `next.config.js` exposes it as `NEXT_PUBLIC_BASE_PATH`, and `src/lib/asset.js` prefixes public image, icon, and favicon URLs so a subpath build does not request assets from the domain root.
+- `NEXT_PUBLIC_SITE_URL` controls canonical URLs, Open Graph URLs, `robots.txt`, and `sitemap.xml`. Fallback: `https://sumitchauhan.me/Relay`.
+
+Local preview used during verification:
+
+```powershell
+npx serve out -l 4173
+# or the small Node static server used for the audit
+```
+
+The export is plain HTML/CSS/JS; no server runtime is required.
 
 ---
 
-## 8. Deployment Requirements
+## 12. Deployment
 
-1. **Static Hosting:** The contents of `C:\startup\Relay\website\out` can be hosted directly on any static web host (Cloudflare Pages, Vercel, Netlify, GitHub Pages, AWS S3 / CloudFront, or NGINX).
-2. **Canonical Domain:** Before public deployment, update the placeholder `https://relay.example.com` in `layout.jsx`, `sitemap.js`, and `robots.js` with Relay's production domain.
-3. **Artifact Releases:** When official GitHub release binaries or Google Play Store links become available, verify that download URLs in `src/app/download/page.jsx` point directly to the published release.
+### Vercel (intended target)
+
+1. Import `halloffame12/Relay`.
+2. Set the project root to `website`.
+3. Framework preset: Next.js. Build command `npm run build`. Output directory `out`.
+4. Add `NEXT_PUBLIC_SITE_URL` with the final URL. Do not set `BASE_PATH`.
+5. Deploy.
+
+Cost: a hobby/personal Vercel project is free for this static site. A custom domain is the only likely cost; `sumitchauhan.me` is already owned. No paid signaling, TURN, database, or email service is required for the site itself.
+
+### GitHub Pages (optional)
+
+```powershell
+$env:BASE_PATH="/Relay"
+$env:NEXT_PUBLIC_SITE_URL="https://sumitchauhan.me/Relay"
+npm run build
+```
+
+Publish `website/out` to the Pages branch. `sumitchauhan.me/Relay/` currently resolves to the existing GitHub Pages site; that deployment still serves the older design until a new build is published. Publishing requires explicit approval.
+
+### Restrictive networks
+
+The site itself is static and needs no TURN server. Cross-network sharing in the app needs a deployed WebSocket signaling endpoint and TURN credentials; those are not configured in the published APK. The site does not imply otherwise.
+
+---
+
+## 13. Verification commands and current results
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Website production build | `cd website; npm run build` | Pass; 7 routes + 404, `robots.txt`, `sitemap.xml` |
+| Overflow audit | Puppeteer script, 8 routes × 9 widths × 2 themes | `[]` |
+| Interaction audit | Tabs, flow, theme, drawer, 404 | Pass |
+| Subpath asset check | `BASE_PATH=/Relay` build | Every image/icon/favicon URL prefixed with `/Relay` |
+| Heading/alt/link audit | All public routes | 1 h1 each; 0 images without alt; 0 unnamed links |
+| Dart format | `dart format --output=none --set-exit-if-changed lib test` | Clean |
+| Flutter analyze | `flutter analyze --no-pub` | No issues found |
+| Flutter tests | `flutter test --no-pub` | 202 passing |
+
+Screenshots and audit JSON from this pass are in the session temp folder (`shots2/`), not committed, because they are verification artifacts rather than site assets.
+
+---
+
+## 14. Known limitations and remaining issues
+
+1. **Not deployed.** The rebuilt site is uncommitted and unpublished. The live GitHub Pages site still serves the previous design.
+2. **No cross-network deployment.** Without `RELAY_SIGNALING_URL` and TURN credentials, the site can only describe cross-network support as available-when-configured. It does not claim the published APK can do it.
+3. **No fresh share-flow screenshots.** The sharing visuals are illustrative HTML/CSS. Capturing the real screens needs two connected Android devices; none were available via adb.
+4. **No Play Store presence.** No Play Console access, no Data Safety sign-off, and no listing. The site links to GitHub Releases only.
+5. **Signaling/TURN costs if enabled.** A small signaling service can run on free or low-cost hosting, but TURN relays carry bandwidth costs. Nothing is purchased or deployed.
+6. **Fonts are loaded from Google Fonts** at runtime. This is a third-party request; the site does not otherwise load analytics or tracking scripts. Self-hosting the three families would remove that dependency if desired.
+7. **Animation and reveal behavior** is CSS/IntersectionObserver only; there is no JavaScript animation library to maintain.
+8. **Visual QA is manual.** The automated audit catches overflow, heading structure, missing alt text, and unnamed links, but not every visual regression. Full-page captures were reviewed at 1440, 768, 390, and 320.
+
+---
+
+## 15. Definition of done for publishing
+
+- [x] Both core experiences are visible in the first viewport and named in the h1.
+- [x] Every route builds as static HTML.
+- [x] No horizontal overflow at 320–1920 px in either theme.
+- [x] Navigation, tabs, flow steps, theme toggle, drawer, and 404 work.
+- [x] Download links point at the real `v0.9.0` GitHub Release.
+- [x] Hashes on `/download` match the published artifacts.
+- [x] Official icon used everywhere; no generated substitute logo.
+- [x] Claims match the published APK, including same-network-only sharing.
+- [x] Privacy and terms pages exist and are linked.
+- [x] Canonical URL, Open Graph, favicon, sitemap, and robots are configured.
+- [ ] Final approval to commit and deploy.
+- [ ] Post-deploy smoke test on the production URL.

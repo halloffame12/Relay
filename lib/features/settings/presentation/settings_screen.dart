@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/layout.dart';
+import '../../../core/widgets/relay_brand_icon.dart';
 import '../../../core/widgets/relay_dialogs.dart';
 import '../../../core/widgets/relay_segmented_control.dart';
 import '../../../core/widgets/relay_wordmark.dart';
@@ -421,6 +422,10 @@ class SettingsScreen extends ConsumerWidget {
                         applicationVersion: '${AppConstants.version} (1)',
                         applicationLegalese:
                             'An offline-first library for documents you keep.',
+                        applicationIcon: const Padding(
+                          padding: EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: RelayBrandIcon(size: 48, borderRadius: AppRadii.md),
+                        ),
                       ),
                       trailing: const Icon(
                         Icons.chevron_right_rounded,

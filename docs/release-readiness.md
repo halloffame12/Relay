@@ -2,6 +2,12 @@
 
 **Audit date:** 1 November 2026
 
+> **Update (14 November 2026):** this audit predates the sender-initiated share
+> redesign and the public 0.9.0 GitHub release. References below to receive
+> mode, manual address/port/code entry, and the “final” artifact describe the
+> earlier TCP flow, which is no longer routed. Current artifacts, limits, and
+> verification results are recorded in `PRODUCTION_READINESS.md`.
+
 **Decision:** **PRODUCTION AAB SIGNED, VERIFIED, AND TWO-DEVICE TESTED; NOT YET
 READY TO PUBLISH.** The permanent application ID, upload signing, branded assets,
 privacy policy and a final release-build two-physical-device transfer check are

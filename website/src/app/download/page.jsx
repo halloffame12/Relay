@@ -1,13 +1,35 @@
+import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
-import CopySnippet from "@/components/CopySnippet";
-import Link from "next/link";
+import CopyButton from "@/components/CopyButton";
+import { asset } from "@/lib/asset";
+
+const RELEASE = "https://github.com/halloffame12/Relay/releases/tag/v0.9.0";
+const APK =
+  "https://github.com/halloffame12/Relay/releases/download/v0.9.0/app-release.apk";
+const AAB =
+  "https://github.com/halloffame12/Relay/releases/download/v0.9.0/app-release.aab";
+
+const APK_SHA =
+  "3906DBBE0D986C3334071E6C94FE727E4729FFF53EB49CAE0B0092006ABD253D";
+const AAB_SHA =
+  "FAB21FFE8F329815664FA8D55AF9EB7A47A9C238F03D040640C6821491437242";
+const CERT_SHA =
+  "BB:0A:17:52:1A:CA:41:B7:DD:EC:6E:85:8B:2C:C8:31:16:51:8F:C7:98:72:E1:B1:88:36:FC:EA:B8:74:5C:95";
 
 export const metadata = {
-  title: "Download Relay for Android — v0.9.0 Release",
+  title: "Download",
   description:
-    "Download Relay v0.9.0 for Android. Offline-first PDF & EPUB reader with peer-to-peer QR file sharing.",
+    "Download Relay 0.9.0 for Android. Verified APK and App Bundle, checksums, install steps and release notes.",
+  alternates: { canonical: "/download" },
+  openGraph: {
+    title: "Download Relay 0.9.0",
+    description:
+      "Relay for Android 7.0+. APK and AAB downloads with SHA-256 checksums.",
+    url: "/download",
+  },
 };
 
 export default function Download() {
@@ -15,181 +37,290 @@ export default function Download() {
     <>
       <Header />
       <main id="main-content">
-        <section className="section" style={{ paddingBottom: 40 }}>
-          <div className="container">
-            <Reveal>
-              <div className="section-head">
-                <div className="eyebrow">[ OFFICIAL RELEASE ]</div>
-                <h1 className="display display-1">Download Relay for Android.</h1>
+        <section className="page-head">
+          <div className="wrap">
+            <div className="page-head__meta">
+              <span>Download</span>
+              <span>0.9.0 / Android</span>
+            </div>
+            <div className="page-head__grid">
+              <div>
+                <h1 className="display display-1">Get Relay.</h1>
                 <p className="lede">
-                  Offline-first reader and peer-to-peer document transfer. No account required.
+                  An Android release build, attached to the public GitHub
+                  release. No account and no Play Store dependency.
                 </p>
               </div>
-            </Reveal>
+              <div className="page-head__aside">
+                <p className="small muted">
+                  Google Play is not published yet, so there is no Play badge or
+                  Play link here. The APK below is the current release artifact.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            {/* Main Release Card */}
-            <div className="download-release-card download-card">
-              <div className="release-grid">
-                <div>
-                  <div className="release-badge-row">
-                    <span className="release-version">Relay v0.9.0</span>
-                    <span className="verified-badge">STABLE PREVIEW</span>
+        <section className="section">
+          <div className="wrap">
+            <div className="download-grid">
+              <Reveal>
+                <div className="release-card">
+                  <div className="release-card__top">
+                    <div className="release-card__title">
+                      <span className="release-card__icon">
+                        <Image
+                          src={asset("/assets/brand/icon-128.png")}
+                          alt=""
+                          width={44}
+                          height={44}
+                        />
+                      </span>
+                      <div>
+                        <div className="release-card__name">Relay for Android</div>
+                        <div className="release-card__sub">Version 0.9.0 · build 1</div>
+                      </div>
+                    </div>
+                    <span className="badge badge--lime">Release candidate</span>
                   </div>
-                  <p style={{ color: "var(--ink-secondary)", fontSize: 16, margin: "0 0 20px" }}>
-                    Install the verified release APK directly, or compile from source using Flutter.
+
+                  <div className="release-card__body">
+                    <div className="meta-grid">
+                      <div>
+                        <dt>Minimum Android</dt>
+                        <dd>7.0 (API 24)</dd>
+                      </div>
+                      <div>
+                        <dt>Target SDK</dt>
+                        <dd>API 36</dd>
+                      </div>
+                      <div>
+                        <dt>APK size</dt>
+                        <dd>~117 MB</dd>
+                      </div>
+                      <div>
+                        <dt>Package</dt>
+                        <dd className="mono" style={{ fontSize: 11.5, wordBreak: "break-all" }}>
+                          io.github.halloffame12.relay
+                        </dd>
+                      </div>
+                    </div>
+
+                    <div className="release-card__actions">
+                      <a className="btn btn--primary" href={APK}>
+                        Download APK <span className="arrow" aria-hidden="true">↓</span>
+                      </a>
+                      <a className="btn btn--ghost" href={AAB}>
+                        Download AAB <span className="arrow" aria-hidden="true">↓</span>
+                      </a>
+                      <a
+                        className="btn btn--ghost"
+                        href={RELEASE}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Release notes <span className="arrow" aria-hidden="true">↗</span>
+                      </a>
+                    </div>
+
+                    <p className="small muted">
+                      The APK is signed with the Relay upload key. Enable
+                      &ldquo;Install unknown apps&rdquo; for your browser or file
+                      manager, open the downloaded file, and confirm the install.
+                      Android may show a Play Protect prompt for apps installed
+                      outside Play.
+                    </p>
+
+                    <details className="disclosure">
+                      <summary>Build from source instead</summary>
+                      <div>
+                        <p className="small muted">
+                          Requires Flutter 3.41.x and the Android SDK. Run these
+                          from the repository root.
+                        </p>
+                        <pre className="code-block">
+{`flutter pub get
+flutter build apk --release --no-tree-shake-icons`}
+                        </pre>
+                        <p className="small muted">
+                          For a cross-network build, point the app at your own
+                          signaling service:
+                        </p>
+                        <pre className="code-block">
+{`flutter build apk --release --no-tree-shake-icons \\
+  --dart-define=RELAY_SIGNALING_URL=wss://your-host/v1/relay`}
+                        </pre>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={80}>
+                <div className="checksums">
+                  <h2>Verify the download</h2>
+                  <p>
+                    Compare the SHA-256 of the file you downloaded with the
+                    value below. The certificate fingerprint identifies the
+                    signing key.
                   </p>
 
-                  <div className="row" style={{ gap: 14 }}>
+                  <div className="check-row">
+                    <div className="check-row__label">
+                      <span>APK · SHA-256</span>
+                      <CopyButton value={APK_SHA} label="APK SHA-256 checksum" />
+                    </div>
+                    <div className="check-row__value">
+                      <code>{APK_SHA}</code>
+                    </div>
+                  </div>
+
+                  <div className="check-row">
+                    <div className="check-row__label">
+                      <span>AAB · SHA-256</span>
+                      <CopyButton value={AAB_SHA} label="AAB SHA-256 checksum" />
+                    </div>
+                    <div className="check-row__value">
+                      <code>{AAB_SHA}</code>
+                    </div>
+                  </div>
+
+                  <div className="check-row">
+                    <div className="check-row__label">
+                      <span>Signing certificate · SHA-256</span>
+                      <CopyButton value={CERT_SHA} label="Signing certificate fingerprint" />
+                    </div>
+                    <div className="check-row__value">
+                      <code>{CERT_SHA}</code>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 18 }}>
+                    <p className="kicker" style={{ marginBottom: 8 }}>Windows</p>
+                    <pre className="code-block">Get-FileHash .\app-release.apk -Algorithm SHA256</pre>
+                    <p className="kicker" style={{ margin: "14px 0 8px" }}>macOS / Linux</p>
+                    <pre className="code-block">shasum -a 256 app-release.apk</pre>
+                    <p className="kicker" style={{ margin: "14px 0 8px" }}>Signature</p>
+                    <pre className="code-block">apksigner verify --print-certs app-release.apk</pre>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section className="section section--soft">
+          <div className="wrap">
+            <div className="split split--start">
+              <Reveal>
+                <p className="eyebrow">Release notes</p>
+                <h2 className="display display-2" style={{ marginTop: 16 }}>
+                  What&apos;s in 0.9.0.
+                </h2>
+                <ol className="steps-list" style={{ marginTop: 24 }}>
+                  <li>
+                    <span>
+                      <b>Reader.</b> Offline PDF and EPUB reading with position
+                      restore, chapters, bookmarks, search and filters.
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      <b>QR sharing.</b> Sender shows a single-use code; receiver
+                      scans, reviews and approves the file list.
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      <b>Verification.</b> Per-file SHA-256 and byte-count checks
+                      before import, with duplicate detection and no silent
+                      overwrites.
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      <b>Cleanup.</b> Cancelling or losing a connection removes
+                      temporary data and leaves no library entry.
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      <b>Branding.</b> The official Relay mark across the
+                      launcher, splash, reader header and store assets.
+                    </span>
+                  </li>
+                </ol>
+              </Reveal>
+
+              <Reveal delay={80}>
+                <div className="limits">
+                  <p className="eyebrow">Before you install</p>
+                  <h3 style={{ marginTop: 12 }}>Three things to know.</h3>
+                  <ul>
+                    <li>
+                      This build is the same-network transfer build. The
+                      cross-network path needs a signaling endpoint and is not
+                      configured in the published APK.
+                    </li>
+                    <li>
+                      An interrupted transfer is cancelled and cleaned up, not
+                      resumed.
+                    </li>
+                    <li>
+                      Local TCP transfers are not transport-encrypted. Use
+                      trusted networks for sensitive documents; WebRTC paths are
+                      DTLS-encrypted.
+                    </li>
+                  </ul>
+                  <div className="hero-actions" style={{ marginTop: 20 }}>
+                    <Link className="btn btn--ghost btn--small" href="/how-it-works">
+                      Read the flow
+                    </Link>
                     <a
-                      className="btn btn-primary"
-                      href="https://github.com/halloffame12/Relay/releases"
+                      className="btn btn--ghost btn--small"
+                      href="https://github.com/halloffame12/Relay/issues"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span>Get APK on GitHub Releases</span>
-                      <span className="arrow">↗</span>
+                      Report an issue ↗
                     </a>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section className="section section--ink">
+          <div className="wrap">
+            <Reveal>
+              <div className="final__grid">
+                <div>
+                  <p className="eyebrow">Source</p>
+                  <h2 className="display display-2" style={{ marginTop: 16 }}>
+                    Don&apos;t install a binary you can&apos;t inspect.
+                  </h2>
+                  <p className="final__copy">
+                    Every screen, the framing protocol and the verification code
+                    are in the public repository. Build it yourself if you would
+                    rather.
+                  </p>
+                  <div className="final__actions">
                     <a
-                      className="btn btn-secondary"
+                      className="btn btn--primary"
                       href="https://github.com/halloffame12/Relay"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span>View Source Code ↗</span>
+                      View source <span className="arrow" aria-hidden="true">↗</span>
                     </a>
-                  </div>
-
-                  <div className="honest-banner coming-soon">
-                    <div style={{ fontWeight: 600, marginBottom: 4 }}>Google Play Store Status:</div>
-                    <span>
-                      The Google Play Store listing is currently in preparation and will be published following Data Safety review. We do not link to unverified or placeholder store entries.
-                    </span>
-                  </div>
-
-                  <div className="specs-table download-meta">
-                    <div className="specs-row meta-item">
-                      <span className="specs-key label">Application ID</span>
-                      <span className="specs-val value mono">io.github.halloffame12.relay</span>
-                    </div>
-                    <div className="specs-row meta-item">
-                      <span className="specs-key label">Platform</span>
-                      <span className="specs-val value">Android 7.0+ (Nougat and newer)</span>
-                    </div>
-                    <div className="specs-row meta-item">
-                      <span className="specs-key label">Minimum SDK / Target SDK</span>
-                      <span className="specs-val value mono">Min SDK 24 / Target SDK 36</span>
-                    </div>
-                    <div className="specs-row meta-item">
-                      <span className="specs-key label">Signature Scheme</span>
-                      <span className="specs-val value mono">v2 APK signature, single signer</span>
-                    </div>
-                    <div className="specs-row meta-item">
-                      <span className="specs-key label">Package Size</span>
-                      <span className="specs-val value mono">~45 MB (Universal APK)</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Checksums & Verification */}
-                <div>
-                  <div className="build-card">
-                    <h4>Cryptographic Checksums (v0.9.0)</h4>
-                    <p>Verify that your downloaded release artifact matches the official build SHA-256 before sideloading.</p>
-
-                    <div style={{ marginBottom: 16 }}>
-                      <div className="eyebrow" style={{ fontSize: 11, marginBottom: 6 }}>
-                        Release APK SHA-256
-                      </div>
-                      <CopySnippet text="A2D3FED1F2F612A16AE9B28EE6C58C21FDC35A11AE326F32A70776492FEE5AF2" />
-                    </div>
-
-                    <div style={{ marginBottom: 16 }}>
-                      <div className="eyebrow" style={{ fontSize: 11, marginBottom: 6 }}>
-                        Android App Bundle (.aab) SHA-256
-                      </div>
-                      <CopySnippet text="121D39677EB42DB5100049BA4D53A82BE70382552FD17E0D86961041D63A2D50" />
-                    </div>
-
-                    <div>
-                      <div className="eyebrow" style={{ fontSize: 11, marginBottom: 6 }}>
-                        Upload Certificate SHA-256
-                      </div>
-                      <CopySnippet text="BB:0A:17:52:1A:CA:41:B7:DD:EC:6E:85:8B:2C:C8:31:16:51:8F:C7:98:72:E1:B1:88:36:FC:EA:B8:74:5C:95" />
-                    </div>
-                  </div>
-
-                  <div className="build-card" style={{ marginTop: 20 }}>
-                    <h4>Compile From Source</h4>
-                    <p>Relay is open source. You can compile the release binary directly from the terminal:</p>
-                    <CopySnippet text="flutter build apk --release --no-tree-shake-icons" />
-                    <div style={{ fontSize: 12, color: "var(--ink-muted)", marginTop: 10 }}>
-                      Requires Flutter 3.41+ and Android SDK 34+.
-                    </div>
+                    <Link className="btn btn--ghost" href="/features">
+                      Feature list
+                    </Link>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Sideloading Installation Guide */}
-            <div className="section-head" style={{ marginTop: 40 }}>
-              <div className="eyebrow">[ INSTALLATION GUIDE ]</div>
-              <h2 className="display display-3">How to install the APK on Android.</h2>
-            </div>
-
-            <div className="principles-grid principles">
-              <div className="principle-item principle">
-                <div className="principle-idx idx">01</div>
-                <div>
-                  <h4>Download the Release APK</h4>
-                  <p>
-                    Download `app-release.apk` directly from GitHub Releases to your Android device using Chrome, Firefox, or any mobile browser.
-                  </p>
-                </div>
-              </div>
-              <div className="principle-item principle">
-                <div className="principle-idx idx">02</div>
-                <div>
-                  <h4>Enable Unknown Sources</h4>
-                  <p>
-                    When opening the APK, Android may ask permission to "Install unknown apps" from your browser. Allow this once in Android Settings.
-                  </p>
-                </div>
-              </div>
-              <div className="principle-item principle">
-                <div className="principle-idx idx">03</div>
-                <div>
-                  <h4>Verify Cryptographic Hash</h4>
-                  <p>
-                    Optionally verify that the SHA-256 hash matches the string published on this page using any file-hash utility.
-                  </p>
-                </div>
-              </div>
-              <div className="principle-item principle">
-                <div className="principle-idx idx">04</div>
-                <div>
-                  <h4>Open & Import</h4>
-                  <p>
-                    Launch Relay. Tap the `+` button in your library to import your first PDF or EPUB document from device storage.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Release Notes */}
-            <div className="section-head" style={{ marginTop: 64 }}>
-              <div className="eyebrow">[ RELEASE NOTES ]</div>
-              <h2 className="display display-3">What's new in v0.9.0.</h2>
-            </div>
-
-            <div className="spec-box" style={{ padding: 32 }}>
-              <ul style={{ paddingLeft: 20, color: "var(--ink-secondary)", fontSize: 15, lineHeight: 1.8 }}>
-                <li><strong>Cross-network share subsystem:</strong> Introduced sender-owned session orchestration with single-use QR envelopes and WebRTC signaling client architecture.</li>
-                <li><strong>Drift SQLite storage engine:</strong> Persists reading positions, page bookmarks, format filters, and verified transfer histories.</li>
-                <li><strong>Bounded memory streaming:</strong> Streams file data in 64 KiB segments with on-the-fly SHA-256 verification and automatic `.part` file cleanup on interruption.</li>
-                <li><strong>Sanitized EPUB rendering:</strong> Restricts inline media to bounded raster images (PNG, JPEG, GIF); excludes SVG and external URLs for security.</li>
-                <li><strong>Hardened boundaries:</strong> JSON frames reject nesting beyond 32 levels; metadata strips control and bidi characters; manual PIN entry rotates after 5 failed guesses.</li>
-              </ul>
-            </div>
+            </Reveal>
           </div>
         </section>
       </main>

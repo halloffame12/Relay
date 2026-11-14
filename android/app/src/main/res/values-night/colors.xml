@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The official icon is dark, so the splash stays warm paper in dark mode
-         too. Only the surrounding window tint changes. -->
+    <!-- Official near-black brand background (#0F0F11). -->
     <color name="ic_launcher_background">#0F0F11</color>
-    <color name="relay_splash_background">#F4F0E6</color>
+    <color name="relay_splash_background">#0F0F11</color>
     <color name="relay_splash_icon_background">#0F0F11</color>
 </resources>

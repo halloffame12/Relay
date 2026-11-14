@@ -23,7 +23,10 @@ from PIL import Image, ImageChops, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 STORE = ROOT / "store"
 BRAND = STORE / "brand"
-SOURCE = BRAND / "relay-icon.png"
+ASSETS_BRAND = ROOT / "assets" / "brand"
+SOURCE = ASSETS_BRAND / "relay-icon.png"
+if not SOURCE.exists():
+    SOURCE = BRAND / "relay-icon.png"
 
 # Play palette. Values are sampled from the official icon; keep in sync with
 # lib/app/theme/app_colors.dart where they overlap.
@@ -51,6 +54,13 @@ def hex_rgba(value: str, alpha: int = 255) -> tuple[int, int, int, int]:
 def load_source() -> Image.Image:
     if not SOURCE.exists():
         raise SystemExit(f"Missing official brand source: {SOURCE}")
+    # Maintain byte-identical mirror between assets/brand and store/brand
+    if SOURCE != BRAND / "relay-icon.png":
+        BRAND.mkdir(parents=True, exist_ok=True)
+        (BRAND / "relay-icon.png").write_bytes(SOURCE.read_bytes())
+    if SOURCE != ASSETS_BRAND / "relay-icon.png":
+        ASSETS_BRAND.mkdir(parents=True, exist_ok=True)
+        (ASSETS_BRAND / "relay-icon.png").write_bytes(SOURCE.read_bytes())
     return Image.open(SOURCE).convert("RGB")
 
 
@@ -170,6 +180,9 @@ def main() -> None:
 
     # Adaptive foreground: the transparent official mark inside the 66/108 safe
     # zone, over the official background colour declared in colors.xml.
+    # At height_fraction 0.44, the mark is centered within the 66dp diameter
+    # safe zone (max radius 31.86dp <= 33.0dp) so no launcher mask (circle,
+    # squircle, teardrop) ever clips the ivory symbol or lime accent.
     adaptive_sizes = {
         "mdpi": 108,
         "hdpi": 162,
@@ -179,13 +192,15 @@ def main() -> None:
     }
     for density, size in adaptive_sizes.items():
         drawable = res / f"drawable-{density}"
-        save(fit_mark(mark, size, 0.58), drawable / "ic_launcher_foreground.png")
+        save(fit_mark(mark, size, 0.44), drawable / "ic_launcher_foreground.png")
         silhouette = Image.new("RGBA", mark.size, (255, 255, 255, 0))
         silhouette.putalpha(mark.getchannel("A"))
-        save(fit_mark(silhouette, size, 0.58), drawable / "ic_launcher_monochrome.png")
+        save(fit_mark(silhouette, size, 0.44), drawable / "ic_launcher_monochrome.png")
 
-    # Splash. Both themes use the official icon on warm paper so the dark mark
-    # is always legible; the night overlay keeps the same background on purpose.
+    # Native Android Splash Screen:
+    # Full-screen near-black background (#0F0F11) with the centered Relay logo mark.
+    # For Android 12+, splash_icon is centered and fits cleanly inside the 160dp circular mask.
+    # For Android 11 and older, splash_mark is centered in launch_background.xml.
     splash_sizes = {
         "mdpi": 256,
         "hdpi": 384,
@@ -196,10 +211,9 @@ def main() -> None:
     for density, size in splash_sizes.items():
         light_dir = res / f"drawable-{density}"
         night_dir = res / f"drawable-night-{density}"
-        icon = rounded(square, size)
-        inset = fit_mark(mark, size, 0.58)
-        save(icon, light_dir / "splash_mark.png")
-        save(icon, night_dir / "splash_mark.png")
+        inset = fit_mark(mark, size, 0.44)
+        save(inset, light_dir / "splash_mark.png")
+        save(inset, night_dir / "splash_mark.png")
         save(inset, light_dir / "splash_icon.png")
         save(inset, night_dir / "splash_icon.png")
 

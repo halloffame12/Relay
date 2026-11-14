@@ -1,6 +1,6 @@
 # Relay production readiness
 
-Last updated: 2026-11-13
+Last updated: 2026-11-14
 
 ## Scope
 
@@ -14,8 +14,8 @@ still tested.
 
 | Artifact | Path | SHA-256 |
 | --- | --- | --- |
-| Android App Bundle | `build/app/outputs/bundle/release/app-release.aab` | `121D39677EB42DB5100049BA4D53A82BE70382552FD17E0D86961041D63A2D50` |
-| Android APK | `build/app/outputs/flutter-apk/app-release.apk` | `A2D3FED1F2F612A16AE9B28EE6C58C21FDC35A11AE326F32A70776492FEE5AF2` |
+| Android App Bundle | `build/app/outputs/bundle/release/app-release.aab` | `FAB21FFE8F329815664FA8D55AF9EB7A47A9C238F03D040640C6821491437242` |
+| Android APK | `build/app/outputs/flutter-apk/app-release.apk` | `3906DBBE0D986C3334071E6C94FE727E4729FFF53EB49CAE0B0092006ABD253D` |
 | Play icon | `store/icon-512.png` | derived from `store/brand/relay-icon.png` |
 | Feature graphic | `store/feature-graphic-1024x500.png` | derived from `store/brand/relay-icon.png` |
 
@@ -46,7 +46,7 @@ runs without networking, WebRTC, or TURN.
 - Sender-owned sessions: the sender selects documents, creates a session, and
   shows a QR. The receiver scans and approves before any bytes are written.
 - QR envelope v2 (`share_invitation.dart`): strict validation, ephemeral
-  token, short expiry (max 10 minutes, capped even if the payload claims later),
+  token, 5-minute default lifetime (future claims capped at 10 minutes),
   size limits, control-character rejection, duplicate-field rejection, LAN
   hints limited to three, no token in `toString()`.
 - Shared framing (`share_frame.dart`): `[type:1][len:4 BE][payload]` over
@@ -94,6 +94,19 @@ runs without networking, WebRTC, or TURN.
   expire quickly; none are embedded in the APK.
 - README documents deployment, coturn setup, and cost model.
 
+### Official website (`website/`)
+- Next.js 15 App Router static export, React 19, JavaScript only. The rebuilt
+  editorial site is complete locally: home, how-it-works, features, download,
+  about, privacy, terms, and 404.
+- `npm run build` passes and exports to `website/out`. The overflow audit across
+  eight routes, nine widths, and both themes returns no offenders; interaction,
+  heading, alt-text, and link checks pass.
+- Download page links to the real GitHub release and carries the published APK,
+  AAB, and certificate SHA-256 values.
+- The rebuilt site is uncommitted and undeployed. The live GitHub Pages site
+  still serves the previous design. Deployment details, evidence, and remaining
+  gaps are in `WEBSITE_READINESS.md`.
+
 ## Known limitations (not implemented, documented honestly)
 
 - **Resume after drop is not implemented.** A failed transfer leaves no
@@ -112,7 +125,8 @@ runs without networking, WebRTC, or TURN.
   "no data collected" unqualified. The dependency is declared and the Play
   listing must reflect it.
 - **No Play Console access, legal/Data Safety sign-off, or publish
-  authorisation.** Nothing has been published.
+  authorisation.** Nothing has been published to Google Play. The 0.9.0 APK and
+  AAB are public on the GitHub release only.
 
 ## Blockers for production release
 
@@ -126,6 +140,9 @@ runs without networking, WebRTC, or TURN.
 4. Decide on resume-after-drop scope (implement or document as out of scope).
 5. Re-run `flutter test` and a release build after any signalling URL or
    infra change.
+6. Commit and deploy the rebuilt website to Vercel (or publish the GitHub Pages
+   build). Publishing needs explicit approval; the site itself is static and
+   needs no paid infrastructure.
 
 ## Continuation instructions
 

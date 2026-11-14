@@ -1,203 +1,106 @@
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
-import DeviceFrame from "@/components/DeviceFrame";
-import Image from "next/image";
-import Link from "next/link";
 
 export const metadata = {
-  title: "Features & Specifications — Relay",
+  title: "Features",
   description:
-    "Complete breakdown of Relay capabilities: PDF & EPUB reading, offline Drift library, QR pairing protocol, cross-network transfers, and integrity verification.",
+    "Relay features: offline PDF and EPUB reading, position restore, bookmarks, QR pairing, receiver approval, SHA-256 verification and duplicate detection.",
+  alternates: { canonical: "/features" },
+  openGraph: {
+    title: "Relay features",
+    description:
+      "What Relay actually does, grouped by reading and sharing, with the limits stated plainly.",
+    url: "/features",
+  },
 };
 
-const FEATURE_MODULES = [
+const GROUPS = [
   {
-    id: "pdf-reading",
-    category: "DOCUMENT ENGINE",
-    title: "PDF Reading Engine",
-    description:
-      "A fast, distraction-free document viewer designed for reading papers, articles, and long-form manuals completely offline.",
-    screenshot: "/assets/screenshots/04-reader.png",
-    screenshotCaption: "PDF reader showing document pages",
-    specs: [
+    id: "reading",
+    index: "01",
+    title: "Reading",
+    intro:
+      "A quiet library and a reader that holds your place. Every claim below is in the 0.9.0 build.",
+    rows: [
       {
-        name: "Continuous Rendering",
-        desc: "Smooth vertical scrolling with page boundary indicators and immediate page jump navigation.",
+        title: "PDF reader",
+        body: "Page navigation, last-position restore and bookmarks. PDF pages are rendered on the device with no network access.",
       },
       {
-        name: "Position Persistence",
-        desc: "Relay remembers your exact scroll coordinate and page index, restoring your reading position on reopen.",
+        title: "EPUB reader",
+        body: "Chapter navigation, last-position restore and inline images. PNG, JPEG and GIF images are supported with a bounded memory budget; SVG and remote references are intentionally skipped.",
       },
       {
-        name: "Custom Bookmarks",
-        desc: "Add named bookmarks to critical references and retrieve them from the document drawer.",
+        title: "Offline library",
+        body: "Import through the Android system picker. Relay copies the file into app-managed storage, records its SHA-256 and keeps a local library. Reading never requires a connection.",
       },
       {
-        name: "Zero Network Leaks",
-        desc: "Never fetches remote fonts, telemetry, or external web assets while opening or viewing documents.",
+        title: "Reading position",
+        body: "Progress is stored per document. Close the app, open a different file, then come back — the reader returns to where you stopped.",
+      },
+      {
+        title: "Bookmarks",
+        body: "Mark a page or chapter and return to it later. Bookmarks stay with the document in the local database.",
+      },
+      {
+        title: "Search, filters and sort",
+        body: "Search by title, author or source. Filter by format and reading status. Sort the collection or inspect how much storage Relay uses.",
+      },
+      {
+        title: "Duplicates rejected on import",
+        body: "A file whose SHA-256 already exists in the library is reported as a duplicate. Relay does not replace the existing document.",
+      },
+      {
+        title: "Remove without losing the original",
+        body: "Deleting a document removes Relay's managed copy. The file you imported from elsewhere is untouched.",
       },
     ],
   },
   {
-    id: "epub-reading",
-    category: "DOCUMENT ENGINE",
-    title: "EPUB Reader with Bounded Media",
-    description:
-      "A sanitized EPUB reading experience that protects device memory and preserves battery life.",
-    screenshot: "/assets/screenshots/tablet-reader.png",
-    screenshotCaption: "Relay EPUB reading interface",
-    specs: [
+    id: "sharing",
+    index: "02",
+    title: "Sharing",
+    intro:
+      "One device shows a code, the other scans it. Consent and verification sit between the scan and the library.",
+    rows: [
       {
-        name: "Sanitized HTML Flow",
-        desc: "Strips control characters, bidi overrides, and unsupported HTML tags before rendering chapters.",
+        title: "QR pairing",
+        body: "The sender shows a single-use QR code; the receiver scans it inside Relay. The code is validated as a Relay envelope and never opened as a web link.",
       },
       {
-        name: "Bounded Inline Images",
-        desc: "Renders chapter-relative PNG, JPEG, and GIF images within strict budgets (8 MiB per image, 24 MiB per book).",
+        title: "No manual address or port entry",
+        body: "The normal sharing flow has no IP, hostname, port or pairing-code fields. The devices negotiate the route themselves.",
       },
       {
-        name: "Safety Safeguards",
-        desc: "SVG files and remote web URLs are deliberately skipped to prevent tracking pixels and script execution.",
+        title: "Receiver approval",
+        body: "The receiver sees the sender name, file names, formats and sizes, then approves or declines. Nothing is written to storage before approval.",
       },
       {
-        name: "Chapter Indexing",
-        desc: "Fast table-of-contents navigation with progress tracking per chapter.",
-      },
-    ],
-  },
-  {
-    id: "offline-library",
-    category: "STORAGE ARCHITECTURE",
-    title: "Local-First Offline Library",
-    description:
-      "Your documents are managed locally through an embedded SQLite database powered by Drift, completely detached from cloud services.",
-    screenshot: "/assets/screenshots/02-library-imported.png",
-    screenshotCaption: "Relay offline document library",
-    specs: [
-      {
-        name: "System Picker Import",
-        desc: "Import any PDF or EPUB using Android's system storage framework. Relay copies the file to app-managed storage.",
+        title: "SHA-256 and byte-count verification",
+        body: "Files stream in chunks. The receiver requires the declared byte count and SHA-256 digest to match before importing.",
       },
       {
-        name: "Original File Protection",
-        desc: "Removing a managed document inside Relay never alters or deletes the original file in your Downloads folder.",
+        title: "Duplicate and overwrite protection",
+        body: "An incoming document that already exists is reported as a duplicate. Relay never silently overwrites an existing document.",
       },
       {
-        name: "SHA-256 Deduplication",
-        desc: "Computes checksum on import; duplicate files are detected and rejected to save storage space.",
+        title: "Direct first, relay fallback",
+        body: "Relay prefers a local network route, then a direct WebRTC connection, and finally an encrypted TURN relay when a restrictive network blocks both. The app labels the path used.",
+        badge: "Requires signaling",
       },
       {
-        name: "Storage Transparency",
-        desc: "Inspect exact byte counts and disk space consumed by individual documents and the entire library.",
-      },
-    ],
-  },
-  {
-    id: "qr-pairing",
-    category: "NETWORKING PROTOCOL",
-    title: "QR Pairing Protocol v2",
-    description:
-      "Camera-assisted peer pairing that eliminates typed IP addresses, port numbers, and network setup menus.",
-    screenshot: "/assets/screenshots/06-receive-qr.png",
-    screenshotCaption: "Ephemeral QR code receive screen",
-    specs: [
-      {
-        name: "Ephemeral QR Invitations",
-        desc: "Payloads contain short-lived cryptographic tokens with a hard 10-minute expiry cap.",
+        title: "Batch limits",
+        body: "Up to 20 files or 200 MiB per transfer, with a 100 MiB cap per file. The sender's selection screen enforces the same limits the receiver validates.",
       },
       {
-        name: "Binary Protocol Verification",
-        desc: "Scanned text is parsed strictly through Relay's frame decoder and never opened in a web browser.",
+        title: "Cancellation and cleanup",
+        body: "Cancelling closes the connection and removes temporary files. An interrupted transfer leaves no library entry and no half-written document.",
       },
       {
-        name: "Hardware Camera Boundary",
-        desc: "Camera permission is requested exclusively when activating the QR viewfinder and closed immediately after.",
-      },
-      {
-        name: "Manual IPv4 Fallback",
-        desc: "Expandable drawer displays manual IP, port, and one-time 6-digit PIN if camera hardware is unavailable.",
-      },
-    ],
-  },
-  {
-    id: "cross-network",
-    category: "NETWORKING PROTOCOL",
-    title: "Cross-Network Peer Transfer",
-    description:
-      "Engineered to negotiate connections across disparate Wi-Fi routers, guest networks, and mobile data.",
-    screenshot: "/assets/screenshots/phone-nearby.png",
-    screenshotCaption: "Nearby transfer options and status",
-    specs: [
-      {
-        name: "LAN-First Negotiation",
-        desc: "Attempts direct high-speed local TCP connection first to minimize latency and bypass external servers.",
-      },
-      {
-        name: "WebRTC Data Channels",
-        desc: "Falls back to WebRTC peer-to-peer data channels when devices are separated by restrictive NATs.",
-      },
-      {
-        name: "Signaling Reference Client",
-        desc: "Connects to a lightweight WebSocket signaling service to exchange session SDPs and ICE candidates.",
-      },
-      {
-        name: "Honest Availability State",
-        desc: "Clearly indicates in UI whether cross-network relaying is available or restricted to local LAN.",
-      },
-    ],
-  },
-  {
-    id: "integrity-verification",
-    category: "SECURITY & SAFETY",
-    title: "Integrity Verification & Consent",
-    description:
-      "Every transferred document undergoes cryptographic checksum validation and explicit receiver approval.",
-    screenshot: "/assets/screenshots/receiver-approve.png",
-    screenshotCaption: "Receiver approval screen with SHA-256",
-    specs: [
-      {
-        name: "Blocking Approval Dialog",
-        desc: "Receiving device must explicitly confirm file acceptance. No auto-downloading or unsolicited delivery.",
-      },
-      {
-        name: "On-the-Fly SHA-256 Check",
-        desc: "Calculates digest incrementally as bytes arrive. Files with mismatched checksums are deleted instantly.",
-      },
-      {
-        name: "Bounded Memory Streaming",
-        desc: "Streams in 64 KiB buffers to keep memory footprint flat regardless of whether the file is 2 MB or 100 MB.",
-      },
-      {
-        name: "Duplicate Integrity Gate",
-        desc: "If the receiver already possesses an identical file, Relay alerts the user without duplicating data.",
-      },
-    ],
-  },
-  {
-    id: "file-organization",
-    category: "LIBRARY MANAGEMENT",
-    title: "Organization & Search",
-    description:
-      "Fast filtering, search, and sorting tools to navigate large offline book and document collections.",
-    screenshot: "/assets/screenshots/03-document-details.png",
-    screenshotCaption: "Document details and metadata inspector",
-    specs: [
-      {
-        name: "Full Title & Author Search",
-        desc: "Search instantly across document titles, authors, and metadata stored in Drift SQLite.",
-      },
-      {
-        name: "Format Filtering",
-        desc: "Filter library views between PDF, EPUB, or all formats with one tap.",
-      },
-      {
-        name: "Reading Status Badges",
-        desc: "Track which documents are unread, in-progress, or finished with clear visual badges.",
-      },
-      {
-        name: "Sort Controls",
-        desc: "Sort your collection by title, import date, file size, or recent reading activity.",
+        title: "Short-lived codes",
+        body: "A sharing code is single-use and expires within minutes. It contains a session reference and an ephemeral token, not an account or long-lived secret.",
       },
     ],
   },
@@ -208,53 +111,113 @@ export default function Features() {
     <>
       <Header />
       <main id="main-content">
-        <section className="section" style={{ paddingBottom: 40 }}>
-          <div className="container">
-            <Reveal>
-              <div className="section-head">
-                <div className="eyebrow">[ SYSTEM SPECIFICATIONS ]</div>
+        <section className="page-head">
+          <div className="wrap">
+            <div className="page-head__meta">
+              <span>Features</span>
+              <span>0.9.0 / Android</span>
+            </div>
+            <div className="page-head__grid">
+              <div>
                 <h1 className="display display-1">What Relay actually does.</h1>
                 <p className="lede">
-                  A verified, exhaustive account of all features genuinely implemented in Relay v0.9.0.
-                  No exaggerated claims, no unverified marketing promises.
+                  A short, honest list, organised around the two things the app
+                  is for: keeping your place while reading, and moving a
+                  document with a scan.
                 </p>
               </div>
-            </Reveal>
+              <div className="page-head__aside">
+                <p className="small muted">
+                  No benchmark numbers and no speculative security claims. The
+                  public source is the authority for every item here.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="section" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div className="feature-spec-grid">
-              {FEATURE_MODULES.map((module) => (
-                <div key={module.id} className="spec-category-row" id={module.id}>
-                  <div className="spec-category-title">
-                    <div className="eyebrow-accent">[{module.category}]</div>
-                    <h3 className="display">{module.title}</h3>
-                    <p style={{ color: "var(--ink-secondary)", fontSize: 15, margin: "12px 0 20px" }}>
-                      {module.description}
-                    </p>
-                    <div style={{ maxWidth: 280, marginTop: 24 }}>
-                      <DeviceFrame
-                        src={module.screenshot}
-                        alt={module.title}
-                        width={260}
-                        height={540}
-                        caption={module.screenshotCaption}
-                      />
-                    </div>
+        <section className="section section--tight">
+          <div className="wrap">
+            {GROUPS.map((group) => (
+              <Reveal key={group.id}>
+                <div className="feature-group" id={group.id}>
+                  <div className="feature-group__head">
+                    <p className="eyebrow">{group.index} / {group.title}</p>
+                    <h2 className="display display-2">{group.title}</h2>
+                    <p>{group.intro}</p>
                   </div>
-
-                  <div className="spec-details-list">
-                    {module.specs.map((spec) => (
-                      <div key={spec.name} className="spec-box">
-                        <h4>{spec.name}</h4>
-                        <p>{spec.desc}</p>
+                  <div className="feature-rows">
+                    {group.rows.map((row) => (
+                      <div className="feature-row" key={row.title}>
+                        <h3>
+                          {row.title}
+                          {row.badge && (
+                            <span className="feature-row__badge">{row.badge}</span>
+                          )}
+                        </h3>
+                        <p>{row.body}</p>
                       </div>
                     ))}
                   </div>
                 </div>
-              ))}
+              </Reveal>
+            ))}
+
+            <div className="split split--start" style={{ marginTop: "clamp(40px, 6vw, 72px)" }}>
+              <Reveal>
+                <div className="limits">
+                  <p className="eyebrow">Known limits</p>
+                  <h3 style={{ marginTop: 12 }}>What this release does not do.</h3>
+                  <ul>
+                    <li>
+                      The published 0.9.0 APK transfers on the same network. The
+                      cross-network path is implemented but needs a configured
+                      signaling endpoint; this build does not ship one.
+                    </li>
+                    <li>
+                      An interrupted transfer is cancelled and cleaned up. It is
+                      not resumed from a byte offset.
+                    </li>
+                    <li>
+                      The local TCP path is not encrypted at the transport level.
+                      WebRTC paths are DTLS-encrypted. Avoid sensitive transfers
+                      on untrusted Wi-Fi.
+                    </li>
+                    <li>
+                      Relay is Android-only today. There is no iOS build and no
+                      Google Play listing yet.
+                    </li>
+                    <li>
+                      There is no cloud sync, account, annotation or text-to-speech
+                      layer. None is promised here.
+                    </li>
+                  </ul>
+                </div>
+              </Reveal>
+              <Reveal delay={80}>
+                <p className="eyebrow">Read the source</p>
+                <h2 className="display display-3" style={{ marginTop: 14 }}>
+                  Verification is code, not a badge.
+                </h2>
+                <p className="body" style={{ marginTop: 14 }}>
+                  The transfer protocol, framing, checksum checks and duplicate
+                  handling are all in the public repository. If a claim here
+                  does not match the code, the code is right.
+                </p>
+                <div className="hero-actions" style={{ marginTop: 22 }}>
+                  <a
+                    className="btn btn--ghost"
+                    href="https://github.com/halloffame12/Relay"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open the repository <span className="arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <Link className="btn btn--primary" href="/download">
+                    Get Relay <span className="arrow" aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              </Reveal>
             </div>
           </div>
         </section>

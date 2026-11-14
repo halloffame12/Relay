@@ -4,159 +4,218 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { asset } from "@/lib/asset";
 
 const NAV_LINKS = [
-  { href: "/", label: "Product" },
-  { href: "/how-it-works", label: "How it works" },
-  { href: "/features", label: "Features" },
-  { href: "/about", label: "About" },
-  { href: "/download", label: "Download" },
+  { href: "/", label: "Overview", index: "00" },
+  { href: "/how-it-works", label: "How it works", index: "01" },
+  { href: "/features", label: "Features", index: "02" },
+  { href: "/about", label: "About", index: "03" },
+  { href: "/download", label: "Download", index: "04" },
 ];
 
 export default function Header() {
   const pathname = usePathname();
   const [theme, setTheme] = useState("light");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("relay-theme");
-    const initial =
-      stored === "dark" || stored === "light"
-        ? stored
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
+    const current =
+      document.documentElement.getAttribute("data-theme") === "dark"
         ? "dark"
         : "light";
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
+    setTheme(current);
   }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
 
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("relay-theme", next);
+    try {
+      localStorage.setItem("relay-theme", next);
+    } catch (error) {
+      // Storage can be unavailable in private browsing; the theme still applies.
+    }
   };
 
-  const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="site-header">
-      <div className="container header-inner">
-        <Link className="brand" href="/" aria-label="Relay Home">
-          <span className="brand-mark">
-            <Image
-              src="/assets/brand/relay-icon.png"
-              alt="Relay Mark"
-              width={34}
-              height={34}
-              priority
-            />
-          </span>
-          <span className="brand-name">Relay</span>
-          <span className="brand-badge mono">v0.9.0</span>
-        </Link>
-
-        <nav className="nav" aria-label="Main Navigation">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`nav-link ${isActive(link.href) ? "active" : ""}`}
-              aria-current={isActive(link.href) ? "page" : undefined}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="header-actions">
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            type="button"
-            title="Toggle theme"
-          >
-            {mounted && theme === "dark" ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-            )}
-          </button>
-
-          <Link className="btn btn-primary btn-nav" href="/download">
-            <span>Download</span>
-            <span className="arrow">→</span>
+    <>
+      <header className="site-header">
+        <div className="wrap header-inner">
+          <Link className="brand" href="/" aria-label="Relay home">
+            <span className="brand__mark">
+              <Image
+                src={asset("/assets/brand/icon-128.png")}
+                alt=""
+                width={32}
+                height={32}
+                priority
+              />
+            </span>
+            <span className="brand__name">Relay</span>
+            <span className="brand__ver mono">0.9.0</span>
           </Link>
 
-          <button
-            className="menu-toggle"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={menuOpen}
-            type="button"
-          >
-            {menuOpen ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <line x1="3" y1="7" x2="21" y2="7"></line>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="17" x2="21" y2="17"></line>
-              </svg>
-            )}
-          </button>
+          <nav className="nav" aria-label="Main">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`nav__link ${isActive(link.href) ? "is-active" : ""}`}
+                aria-current={isActive(link.href) ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="header-actions">
+            <button
+              className="icon-btn"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+            >
+              {mounted && theme === "dark" ? (
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="4.2" />
+                  <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" />
+                </svg>
+              ) : (
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z" />
+                </svg>
+              )}
+            </button>
+
+            <Link className="btn btn--primary btn--small header-cta" href="/download">
+              Get Relay <span className="arrow" aria-hidden="true">→</span>
+            </Link>
+
+            <button
+              className="icon-btn menu-toggle"
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
+              aria-controls="site-menu"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+            >
+              {menuOpen ? (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 7h18M3 12h18M3 17h18" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
       {menuOpen && (
-        <div className="mobile-drawer" role="dialog" aria-modal="true">
-          <div className="container mobile-drawer-inner">
-            <nav className="mobile-nav-links" aria-label="Mobile Navigation">
+        <div className="drawer" id="site-menu">
+          <div className="wrap">
+            <nav className="drawer__nav" aria-label="Mobile">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`mobile-nav-item ${isActive(link.href) ? "active" : ""}`}
+                  className={`drawer__link ${isActive(link.href) ? "is-active" : ""}`}
+                  aria-current={isActive(link.href) ? "page" : undefined}
                   onClick={() => setMenuOpen(false)}
                 >
                   <span>{link.label}</span>
-                  <span className="mobile-arrow">→</span>
+                  <span>{link.index}</span>
                 </Link>
               ))}
+              <a
+                className="drawer__link"
+                href="https://github.com/halloffame12/Relay"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>GitHub</span>
+                <span>↗</span>
+              </a>
             </nav>
-            <div className="mobile-drawer-footer">
+            <div className="drawer__foot">
               <Link
+                className="btn btn--primary btn--wide"
                 href="/download"
-                className="btn btn-primary btn-full"
                 onClick={() => setMenuOpen(false)}
               >
-                Download Relay v0.9.0
+                Get Relay 0.9.0 <span className="arrow" aria-hidden="true">→</span>
               </Link>
-              <div className="mobile-meta mono">
-                <span>Local-first • Android 7.0+ • GPL / Open Source</span>
-              </div>
+              <p className="drawer__meta">
+                Android 7.0+ / offline PDF &amp; EPUB / no account
+              </p>
             </div>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
