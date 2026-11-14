@@ -1,4 +1,5 @@
 User-Agent: *
 Allow: /
 
+Host: https://sumitchauhan.me/Relay
 Sitemap: https://sumitchauhan.me/Relay/sitemap.xml
