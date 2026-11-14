@@ -1,8 +1,6 @@
-export const dynamic = "force-static";
+import { siteUrl as base } from "@/lib/site";
 
-const base = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://sumitchauhan.me/Relay"
-).replace(/\/$/, "");
+export const dynamic = "force-static";
 
 export default function sitemap() {
   const routes = [

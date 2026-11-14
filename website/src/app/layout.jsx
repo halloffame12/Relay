@@ -1,9 +1,6 @@
 import "./globals.css";
 import { asset } from "@/lib/asset";
-
-const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://sumitchauhan.me/Relay"
-).replace(/\/$/, "");
+import { siteUrl } from "@/lib/site";
 
 export const metadata = {
   metadataBase: new URL(`${siteUrl}/`),
